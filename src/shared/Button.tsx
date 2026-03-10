@@ -1,11 +1,10 @@
 const buttonStyles = {
   color: {
     primary:
-      "bg-brand-500 active:bg-brand-600 hover:border-brand-600 text-white",
+      "bg-amber-500 active:bg-amber-600 hover:border-amber-600 text-white",
     secondary:
-      "bg-neutral-100 active:bg-neutral-300 hover:border-neutral-300 text-neutral-700",
-    danger:
-      "bg-danger-600 active:bg-danger-700 hover:border-danger-700 text-white",
+      "bg-gray-100 active:bg-gray-300 hover:border-gray-300 text-gray-700",
+    danger: "bg-red-600 active:bg-red-700 hover:border-red-700 text-white",
   },
   size: {
     small: "text-sm px-3 py-1.5",
@@ -32,17 +31,21 @@ export function Button({
   weight = "medium",
   size = "medium",
   type = "button",
+  className,
+  disabled,
   children,
   ...props
 }: ButtonProps) {
   return (
     <button
       type={type}
+      disabled={disabled}
       className={[
-        "min-w-36 m-1 border border-transparent rounded-md transition-all duration-200 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-300",
+        "min-w-36 m-1 border border-transparent rounded-md transition-all duration-200 focus:outline-none disabled:cursor-not-allowed disabled:opacity-25",
         buttonStyles["color"][color],
         buttonStyles["weight"][weight],
         buttonStyles["size"][size],
+        className ?? "",
       ].join(" ")}
       {...props}
     >
