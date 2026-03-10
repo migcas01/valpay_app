@@ -3,3 +3,4 @@ export { Input } from "./Input";
 export { Chip } from "./Chip";
 export { Select } from "./Select";
 export { Card, CardBody, CardFooter, CardHeader } from "./Card";
+export { Divider } from "./Divider";
