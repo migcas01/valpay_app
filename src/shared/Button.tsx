@@ -19,7 +19,7 @@ const buttonStyles = {
 };
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  type: "submit" | "reset" | "button";
+  type?: "submit" | "reset" | "button";
   color?: keyof typeof buttonStyles.color;
   weight?: keyof typeof buttonStyles.weight;
   size?: keyof typeof buttonStyles.size;

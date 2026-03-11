@@ -2,7 +2,7 @@ const chipStyles = {
   color: {
     default: "bg-gray-100 text-gray-600 border border-gray-200",
     primary: "bg-amber-50 text-amber-700 border border-amber-200",
-    secondary: "bg-indigo-50 text-indigo-700 border border-indigo-200",
+    secondary: "bg-gray-50 text-gray-700 border border-gray-200",
     success: "bg-emerald-50 text-emerald-700 border border-emerald-200",
     warning: "bg-yellow-50 text-yellow-700 border border-yellow-200",
     danger: "bg-red-50 text-red-700 border border-red-200",
@@ -10,7 +10,7 @@ const chipStyles = {
   dotColor: {
     default: "bg-gray-400",
     primary: "bg-amber-500",
-    secondary: "bg-indigo-500",
+    secondary: "bg-gray-500",
     success: "bg-emerald-500",
     warning: "bg-yellow-500",
     danger: "bg-red-500",

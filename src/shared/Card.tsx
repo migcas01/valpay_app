@@ -1,10 +1,16 @@
-interface CardProps {
+interface CardProps extends React.DetailedHTMLProps<
+  React.HTMLAttributes<HTMLDivElement>,
+  HTMLDivElement
+> {
   children: React.ReactNode;
 }
 
-export function Card({ children }: CardProps) {
+export function Card({ children, ...props }: CardProps) {
   return (
-    <div className="w-full max-w-md overflow-hidden rounded-xl border border-gray-200 bg-white">
+    <div
+      className="w-full max-w-md overflow-hidden rounded-xl border border-gray-200 bg-white"
+      {...props}
+    >
       {children}
     </div>
   );

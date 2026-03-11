@@ -2,7 +2,7 @@ import type { LucideIcon } from "lucide-react";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   placeholder: string;
-  label: string;
+  label?: string;
   icon?: LucideIcon;
 }
 
@@ -15,9 +15,11 @@ export function Input({
 }: InputProps) {
   return (
     <div className="w-full">
-      <label className="block font-medium text-sm text-left text-gray-600 mb-1.5 font-sans">
-        {label}
-      </label>
+      {label && (
+        <label className="block font-medium text-sm text-left text-gray-600 mb-1.5 font-sans">
+          {label}
+        </label>
+      )}
       <div className="relative flex items-center">
         <input
           type={type}

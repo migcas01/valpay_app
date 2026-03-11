@@ -5,11 +5,4 @@
 
 @theme {
   --font-display: "Lato", sans-serif;
-
-  --color-brand: var(--color-amber);
-  --color-success: var(--color-emerald);
-  --color-danger: var(--color-red);
-  --color-warning: var(--color-yellow);
-  --color-info: var(--color-indigo);
-  --color-neutral: var(--color-gray);
 }
