@@ -7,3 +7,7 @@ export { Divider } from "./Divider";
 export { Badge } from "./Badge";
 export { Callout } from "./Callout";
 export { Spinner } from "./Spinner";
+export { Text } from "./Text";
+export { Heading } from "./Heading";
+export { Link } from "./Link";
+export { Popover } from "./Popover";
