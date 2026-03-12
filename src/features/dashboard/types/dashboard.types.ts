@@ -20,3 +20,18 @@ export interface DashboardData {
   stats: DashboardStats;
   recentTransactions: RecentTransaction[];
 }
+
+export interface MaintainerDashboardStats {
+  totalVolume: number;
+  totalPending: number;
+  failedCount: number;
+  transactionCount: number;
+  commerceCount: number;
+  adminCount: number;
+  currency: string;
+}
+
+export interface MaintainerDashboardData {
+  stats: MaintainerDashboardStats;
+  recentTransactions: RecentTransaction[];
+}

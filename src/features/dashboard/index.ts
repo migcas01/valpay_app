@@ -1,3 +1,11 @@
 export { StatsCard } from "./components/StatsCard";
 export { DashboardAdmin } from "./components/DashboardAdmin";
-export type { DashboardStats, RecentTransaction, DashboardData } from "./types/dashboard.types";
+export { DashboardMaintainer } from "./components/DashboardMaintainer";
+export { useDashboardAdmin, useDashboardMaintainer } from "./hooks/useDashboard";
+export type {
+  DashboardStats,
+  RecentTransaction,
+  DashboardData,
+  MaintainerDashboardStats,
+  MaintainerDashboardData,
+} from "./types/dashboard.types";

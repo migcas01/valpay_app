@@ -1,43 +1,25 @@
 import { type LucideIcon } from "lucide-react";
-import { Card, CardBody, Text } from "../../../shared";
+import { Card, CardBody, Text, Heading } from "../../../shared";
 
-interface StatsCardProps {
+export interface StatsCardConfig {
   title: string;
   value: string | number;
   icon: LucideIcon;
+  color?: "primary" | "success" | "warning" | "danger";
   trend?: {
     value: number;
     isPositive: boolean;
   };
-  color?: "primary" | "success" | "warning" | "danger";
 }
 
-const colorStyles = {
-  primary: {
-    bg: "bg-amber-50",
-    icon: "text-amber-600",
-  },
-  success: {
-    bg: "bg-emerald-50",
-    icon: "text-emerald-600",
-  },
-  warning: {
-    bg: "bg-yellow-50",
-    icon: "text-yellow-600",
-  },
-  danger: {
-    bg: "bg-red-50",
-    icon: "text-red-600",
-  },
+const colorStyles: Record<NonNullable<StatsCardConfig["color"]>, { bg: string; icon: string }> = {
+  primary: { bg: "bg-amber-50", icon: "text-amber-600" },
+  success: { bg: "bg-emerald-50", icon: "text-emerald-600" },
+  warning: { bg: "bg-yellow-50", icon: "text-yellow-600" },
+  danger: { bg: "bg-red-50", icon: "text-red-600" },
 };
 
-export function StatsCard({
-  title,
-  value,
-  icon: Icon,
-  trend,
-  color = "primary",
-}: StatsCardProps) {
+export function StatsCard({ title, value, icon: Icon, trend, color = "primary" }: StatsCardConfig) {
   const styles = colorStyles[color];
 
   return (
@@ -48,15 +30,14 @@ export function StatsCard({
             <Text variant="small" color="secondary">
               {title}
             </Text>
-            <Text variant="h2" weight="bold" className="mt-1">
+            <Heading variant="h4" weight="bold" className="mt-1">
               {value}
-            </Text>
+            </Heading>
             {trend && (
               <Text
                 variant="small"
-                className={`mt-2 ${
-                  trend.isPositive ? "text-emerald-600" : "text-red-600"
-                }`}
+                color={trend.isPositive ? "success" : "danger"}
+                className="mt-1"
               >
                 {trend.isPositive ? "+" : "-"}
                 {Math.abs(trend.value)}% from last month

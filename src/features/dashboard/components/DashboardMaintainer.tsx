@@ -1,11 +1,11 @@
-import { DollarSign, Clock, XCircle, FileText } from "lucide-react";
+import { DollarSign, Clock, XCircle, ArrowLeftRight, Building2, Users } from "lucide-react";
 import { Spinner, Link, Heading } from "../../../shared";
 import { StatsCard } from "./StatsCard";
 import { TransactionList } from "../../transactions";
-import type { DashboardData, DashboardStats } from "../types/dashboard.types";
+import type { MaintainerDashboardData, MaintainerDashboardStats } from "../types/dashboard.types";
 import type { StatsCardConfig } from "./StatsCard";
 
-function buildStatsConfig(stats: DashboardStats, currency: string): StatsCardConfig[] {
+function buildStatsConfig(stats: MaintainerDashboardStats, currency: string): StatsCardConfig[] {
   const format = (amount: number) =>
     new Intl.NumberFormat("es-CO", {
       style: "currency",
@@ -14,19 +14,21 @@ function buildStatsConfig(stats: DashboardStats, currency: string): StatsCardCon
     }).format(amount);
 
   return [
-    { title: "Total Collected", value: format(stats.totalCollected), icon: DollarSign, color: "success" },
-    { title: "Pending Payments", value: format(stats.totalPending), icon: Clock, color: "warning" },
-    { title: "Failed Transactions", value: format(stats.totalFailed), icon: XCircle, color: "danger" },
-    { title: "Total Invoices", value: stats.invoiceCount.toString(), icon: FileText, color: "primary" },
+    { title: "Total Volume", value: format(stats.totalVolume), icon: DollarSign, color: "success" },
+    { title: "Pending Volume", value: format(stats.totalPending), icon: Clock, color: "warning" },
+    { title: "Failed Transactions", value: stats.failedCount.toString(), icon: XCircle, color: "danger" },
+    { title: "Total Transactions", value: stats.transactionCount.toString(), icon: ArrowLeftRight, color: "primary" },
+    { title: "Active Commerces", value: stats.commerceCount.toString(), icon: Building2, color: "primary" },
+    { title: "Administrators", value: stats.adminCount.toString(), icon: Users, color: "primary" },
   ];
 }
 
-interface DashboardAdminProps {
-  data?: DashboardData;
+interface DashboardMaintainerProps {
+  data?: MaintainerDashboardData;
   isLoading?: boolean;
 }
 
-export function DashboardAdmin({ data, isLoading }: DashboardAdminProps) {
+export function DashboardMaintainer({ data, isLoading }: DashboardMaintainerProps) {
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
@@ -52,7 +54,7 @@ export function DashboardAdmin({ data, isLoading }: DashboardAdminProps) {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {statsConfig.map((stat) => (
           <StatsCard key={stat.title} {...stat} />
         ))}
