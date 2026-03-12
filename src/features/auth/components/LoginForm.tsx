@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Button, Input, Card, CardBody, Heading } from "../../../shared";
-import { signIn } from "better-auth/react";
+import { Button, Input, Card, CardBody, Heading, Text, Callout } from "../../../shared";
+import { authClient } from "../../../auth/client";
 
 export function LoginForm() {
   const navigate = useNavigate();
@@ -15,17 +15,18 @@ export function LoginForm() {
     setIsLoading(true);
     setError(null);
 
-    try {
-      await signIn.email({
-        email,
-        password,
-      });
-      navigate("/dashboard");
-    } catch (err) {
+    const { error: signInError } = await authClient.signIn.email({
+      email,
+      password,
+    });
+
+    if (signInError) {
       setError("Invalid email or password");
-    } finally {
       setIsLoading(false);
+      return;
     }
+
+    navigate("/dashboard");
   };
 
   return (
@@ -36,17 +37,13 @@ export function LoginForm() {
             <Heading variant="h2" weight="bold">
               Sign In
             </Heading>
-            <p className="text-gray-600 mt-2">
+            <Text color="secondary" className="mt-2">
               Access your commerce dashboard
-            </p>
+            </Text>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
-                {error}
-              </div>
-            )}
+            {error && <Callout type="error" title="Sign in failed" description={error} />}
 
             <Input
               label="Email"
