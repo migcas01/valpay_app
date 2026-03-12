@@ -1,9 +1,15 @@
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Button, Input, Select, Card, CardBody, Heading } from "../../../shared";
+import { Button, Input, Select, Card, CardBody, Heading, Text, Callout } from "../../../shared";
+import type { SingleValue } from "react-select";
 import type { DocumentType } from "../types/client-lookup.types";
 
-const DOCUMENT_TYPES = [
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+const DOCUMENT_TYPES: SelectOption[] = [
   { value: "CC", label: "Cédula de Ciudadanía" },
   { value: "NIT", label: "Número de Identificación Tributaria" },
   { value: "CE", label: "Cédula de Extranjería" },
@@ -14,7 +20,7 @@ const DOCUMENT_TYPES = [
 
 export function ClientLookupForm() {
   const navigate = useNavigate();
-  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
   const [documentType, setDocumentType] = useState<DocumentType>("CC");
   const [documentNumber, setDocumentNumber] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -28,12 +34,16 @@ export function ClientLookupForm() {
       return;
     }
 
-    startTransition(() => {
-      navigate(
-        `/pay/lookup?docType=${documentType}&docNum=${documentNumber}`
-      );
-    });
+    setIsLoading(true);
+    navigate(`/pay/lookup?docType=${documentType}&docNum=${encodeURIComponent(documentNumber)}`);
   };
+
+  const handleDocumentTypeChange = (option: unknown) => {
+    const o = option as SingleValue<SelectOption>;
+    if (o) setDocumentType(o.value as DocumentType);
+  };
+
+  const selectedOption = DOCUMENT_TYPES.find((opt) => opt.value === documentType) ?? null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
@@ -43,23 +53,19 @@ export function ClientLookupForm() {
             <Heading variant="h2" weight="bold">
               Find Your Invoice
             </Heading>
-            <p className="text-gray-600 mt-2">
+            <Text color="secondary" className="mt-2">
               Enter your document information to view your pending invoices
-            </p>
+            </Text>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
-                {error}
-              </div>
-            )}
+            {error && <Callout type="error" title="Error" description={error} />}
 
             <Select
               label="Document Type"
               options={DOCUMENT_TYPES}
-              value={documentType}
-              onChange={(e) => setDocumentType(e.target.value as DocumentType)}
+              value={selectedOption}
+              onChange={handleDocumentTypeChange}
             />
 
             <Input
@@ -75,9 +81,9 @@ export function ClientLookupForm() {
               type="submit"
               color="primary"
               className="w-full"
-              disabled={isPending}
+              disabled={isLoading}
             >
-              {isPending ? "Searching..." : "Search Invoices"}
+              {isLoading ? "Searching..." : "Search Invoices"}
             </Button>
           </form>
         </CardBody>
