@@ -1,9 +1,13 @@
 export interface Invoice {
+  // Invoice Data (DB)
   id: string;
-  externalReference: string;
-  amount: number;
+  externalId: string;
+  subject: string;
+  metadata: Record<string, unknown>;
+
+  // Payment
   currency: string;
-  description: string;
+  amount: number;
   receiverName: string;
   receiverId: string;
   senderDocument: string;

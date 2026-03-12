@@ -1,13 +1,22 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Payment, CreatePaymentPayload } from "../types/payment.types";
 
+const API_BASE = "http://localhost:3000/api/v1";
+
 async function createPayment(payload: CreatePaymentPayload): Promise<Payment> {
-  const response = await fetch("/api/v1/payments", {
+  // Transformar al formato de la API
+  const apiPayload = {
+    invoiceId: Number(payload.invoiceId),
+    currencyCode: "COP",
+    amount: 2500000, // Por ahora hardcodeado, después se obtiene de la invoice
+  };
+
+  const response = await fetch(`${API_BASE}/payments`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(apiPayload),
   });
 
   if (!response.ok) {

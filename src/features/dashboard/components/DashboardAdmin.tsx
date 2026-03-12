@@ -2,22 +2,39 @@ import { DollarSign, Clock, XCircle, FileText } from "lucide-react";
 import { Spinner, Link, Heading } from "../../../shared";
 import { StatsCard } from "./StatsCard";
 import { TransactionList } from "../../transactions";
+import { formatCurrency } from "../../../utils";
 import type { DashboardData, DashboardStats } from "../types/dashboard.types";
 import type { StatsCardConfig } from "./StatsCard";
 
-function buildStatsConfig(stats: DashboardStats, currency: string): StatsCardConfig[] {
-  const format = (amount: number) =>
-    new Intl.NumberFormat("es-CO", {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 0,
-    }).format(amount);
-
+function buildStatsConfig(
+  stats: DashboardStats,
+  currency: string,
+): StatsCardConfig[] {
   return [
-    { title: "Total Collected", value: format(stats.totalCollected), icon: DollarSign, color: "success" },
-    { title: "Pending Payments", value: format(stats.totalPending), icon: Clock, color: "warning" },
-    { title: "Failed Transactions", value: format(stats.totalFailed), icon: XCircle, color: "danger" },
-    { title: "Total Invoices", value: stats.invoiceCount.toString(), icon: FileText, color: "primary" },
+    {
+      title: "Total Collected",
+      value: formatCurrency(stats.totalCollected, currency),
+      icon: DollarSign,
+      color: "success",
+    },
+    {
+      title: "Pending Payments",
+      value: formatCurrency(stats.totalPending, currency),
+      icon: Clock,
+      color: "warning",
+    },
+    {
+      title: "Failed Transactions",
+      value: formatCurrency(stats.totalFailed, currency),
+      icon: XCircle,
+      color: "danger",
+    },
+    {
+      title: "Total Invoices",
+      value: stats.invoiceCount.toString(),
+      icon: FileText,
+      color: "primary",
+    },
   ];
 }
 

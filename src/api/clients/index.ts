@@ -2,17 +2,18 @@ import axios from "axios";
 
 // Base Axios instance for all internal API calls
 export const apiClient = axios.create({
-  baseURL: "/api/v1",
+  baseURL: "http://localhost:3000/api/v1",
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true,
+  withCredentials: false, // Desactivar credenciales para evitar problemas CORS
 });
 
 // Response interceptor: unwrap .data from Axios response
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    console.error("API Error:", error); // Debug
     const message =
       error.response?.data?.message ??
       error.response?.data?.error ??

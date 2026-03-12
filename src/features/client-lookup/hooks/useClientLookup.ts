@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import type { ClientLookupParams, ClientLookupResponse } from "../types/client-lookup.types";
 
+const API_BASE = "http://localhost:3000/api/v1";
+
 async function fetchInvoices(
   params: ClientLookupParams
 ): Promise<ClientLookupResponse> {
@@ -9,7 +11,7 @@ async function fetchInvoices(
     documentNumber: params.documentNumber,
   }).toString();
 
-  const response = await fetch(`/api/v1/invoices?${queryString}`);
+  const response = await fetch(`${API_BASE}/invoices?${queryString}`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch invoices");

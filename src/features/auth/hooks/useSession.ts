@@ -11,15 +11,16 @@ interface SessionResponse {
 }
 
 async function fetchSession(): Promise<SessionResponse> {
-  const response = await fetch("/api/auth/get-session", {
-    credentials: "include",
-  });
-  
-  if (!response.ok) {
-    throw new Error("Failed to fetch session");
-  }
-  
-  return response.json();
+  // Auth temporalmente deshabilitado para pruebas
+  return {
+    user: {
+      id: "1",
+      email: "admin@test.com",
+      name: "Admin Test",
+      role: "admin",
+      commerceId: "1",
+    },
+  };
 }
 
 export function useAuth() {
