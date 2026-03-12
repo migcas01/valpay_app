@@ -14,40 +14,30 @@ export function Input({
   ...props
 }: InputProps) {
   return (
-    <div className="w-full">
-      {label && (
-        <label className="block font-medium text-sm text-left text-gray-600 mb-1.5 font-sans">
-          {label}
-        </label>
-      )}
-      <div className="relative flex items-center">
-        <input
-          type={type}
-          placeholder={placeholder}
-          className="
-            w-full
-            text-gray-800
-            bg-gray-50
-            py-4
-            px-3
-            rounded-md
-            border
-            border-transparent
-            placeholder:text-gray-500
-            outline-none
-            transition-all
-            duration-200
-            focus:border-amber-500
-          "
-          {...props}
-        />
-
-        {Icon && (
-          <div className="absolute right-4 text-gray-400 pointer-events-none">
-            <Icon size={20} />
-          </div>
+    <div className="space-y-2">
+      <label>
+        {label && (
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">
+            {label}
+          </span>
         )}
-      </div>
+        <div className="relative">
+          {Icon && (
+            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+              <Icon size={20} />
+            </span>
+          )}
+          <input
+            type={type}
+            placeholder={placeholder}
+            className={[
+              "block w-full pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none placeholder:text-gray-400",
+              Icon ? "pl-10" : "pl-2.5",
+            ].join(" ")}
+            {...props}
+          />
+        </div>
+      </label>
     </div>
   );
 }
