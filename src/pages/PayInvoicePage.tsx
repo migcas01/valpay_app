@@ -10,8 +10,8 @@ function buildSummary(invoice: Invoice): PaymentSummary {
   const subtotal = invoice.amount;
   return {
     invoice: {
-      externalReference: invoice.externalReference,
-      description: invoice.description,
+      externalReference: invoice.externalId,
+      description: invoice.subject,
       amount: invoice.amount,
       currency: invoice.currency,
     },
@@ -22,9 +22,7 @@ function buildSummary(invoice: Invoice): PaymentSummary {
     receiver: {
       name: invoice.receiverName,
     },
-    items: [
-      { label: "Subtotal", amount: subtotal, type: "subtotal" },
-    ],
+    items: [{ label: "Subtotal", amount: subtotal, type: "subtotal" }],
     total: subtotal,
   };
 }
@@ -48,7 +46,9 @@ export function PayInvoicePage() {
           <Callout
             type="error"
             title="Not found"
-            description={error instanceof Error ? error.message : "Invoice not found"}
+            description={
+              error instanceof Error ? error.message : "Invoice not found"
+            }
           />
           <Link to="/pay">Back to search</Link>
         </div>

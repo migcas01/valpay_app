@@ -27,16 +27,17 @@ import type { PaymentSummary } from "./features/payments";
 
 const MOCK_INVOICE_PENDING: Invoice = {
   id: "inv-1",
-  externalReference: "EDUFAST-1234",
+  externalId: "EDUFAST-1234",
   amount: 850000,
   currency: "COP",
-  description: "Matrícula semestre 2025-1",
+  subject: "Matrícula semestre 2025-1",
   receiverName: "Universidad EDUFAST",
   receiverId: "rec-1",
   senderDocument: "CC-1002500700",
   senderName: "Juan Pérez",
   senderEmail: "juan@mail.com",
   status: "pending",
+  metadata: {},
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
 };
@@ -44,21 +45,21 @@ const MOCK_INVOICE_PENDING: Invoice = {
 const MOCK_INVOICE_PAID: Invoice = {
   ...MOCK_INVOICE_PENDING,
   id: "inv-2",
-  externalReference: "EDUFAST-1100",
+  externalId: "EDUFAST-1100",
   status: "paid",
 };
 
 const MOCK_INVOICE_FAILED: Invoice = {
   ...MOCK_INVOICE_PENDING,
   id: "inv-3",
-  externalReference: "EDUFAST-0988",
+  externalId: "EDUFAST-0988",
   status: "failed",
 };
 
 const MOCK_INVOICE_CANCELLED: Invoice = {
   ...MOCK_INVOICE_PENDING,
   id: "inv-4",
-  externalReference: "EDUFAST-0750",
+  externalId: "EDUFAST-0750",
   status: "cancelled",
 };
 
@@ -124,10 +125,21 @@ const MOCK_PAYMENT_SUMMARY: PaymentSummary = {
 
 // --- Section wrapper ---
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <section className="mb-14">
-      <Heading variant="h4" weight="bold" color="secondary" className="mb-4 pb-2 border-b border-gray-200">
+      <Heading
+        variant="h4"
+        weight="bold"
+        color="secondary"
+        className="mb-4 pb-2 border-b border-gray-200"
+      >
         {title}
       </Heading>
       {children}
@@ -148,16 +160,38 @@ function App() {
 
         {/* ── Navbar ── */}
         <Section title="Navbar">
-          <p className="text-sm text-gray-500 mb-3">Rendered above (reads role from session).</p>
+          <p className="text-sm text-gray-500 mb-3">
+            Rendered above (reads role from session).
+          </p>
         </Section>
 
         {/* ── StatsCard ── */}
         <Section title="StatsCard — all color variants">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatsCard title="Total Collected" value="$1,234,567" icon={DollarSign} color="success" />
-            <StatsCard title="Pending Payments" value="$45,000" icon={Clock} color="warning" />
-            <StatsCard title="Failed" value="$12,000" icon={AlertCircle} color="danger" />
-            <StatsCard title="Total Invoices" value="156" icon={FileText} color="primary" />
+            <StatsCard
+              title="Total Collected"
+              value="$1,234,567"
+              icon={DollarSign}
+              color="success"
+            />
+            <StatsCard
+              title="Pending Payments"
+              value="$45,000"
+              icon={Clock}
+              color="warning"
+            />
+            <StatsCard
+              title="Failed"
+              value="$12,000"
+              icon={AlertCircle}
+              color="danger"
+            />
+            <StatsCard
+              title="Total Invoices"
+              value="156"
+              icon={FileText}
+              color="primary"
+            />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
             <StatsCard
@@ -229,7 +263,9 @@ function App() {
         <Section title="InvoiceList — with items / loading / empty">
           <div className="space-y-6">
             <div>
-              <p className="text-sm text-gray-500 mb-2">With items + create button</p>
+              <p className="text-sm text-gray-500 mb-2">
+                With items + create button
+              </p>
               <InvoiceList
                 invoices={[MOCK_INVOICE_PENDING, MOCK_INVOICE_PAID]}
                 showPayButton
@@ -241,11 +277,15 @@ function App() {
               <InvoiceList invoices={[]} isLoading />
             </div>
             <div>
-              <p className="text-sm text-gray-500 mb-2">Empty state (no create)</p>
+              <p className="text-sm text-gray-500 mb-2">
+                Empty state (no create)
+              </p>
               <InvoiceList invoices={[]} />
             </div>
             <div>
-              <p className="text-sm text-gray-500 mb-2">Empty state (with create)</p>
+              <p className="text-sm text-gray-500 mb-2">
+                Empty state (with create)
+              </p>
               <InvoiceList invoices={[]} showCreateButton />
             </div>
           </div>

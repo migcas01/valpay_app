@@ -17,6 +17,7 @@ import { PayLookupPage } from "../pages/PayLookupPage";
 import { PayInvoicePage } from "../pages/PayInvoicePage";
 import { PayReturnPage } from "../pages/PayReturnPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
+import { DevPage } from "../pages/DevPage";
 
 export function AppRoutes() {
   return (
@@ -65,6 +66,9 @@ export function AppRoutes() {
       {/* ── Redirects & 404 ──────────────────────────────── */}
       <Route path="/" element={<Navigate to="/pay" replace />} />
       <Route path="*" element={<NotFoundPage />} />
+
+      {/* ── Dev ──────────────────────────────────────────── */}
+      <Route path="/dev" element={<DevPage />} />
     </Routes>
   );
 }

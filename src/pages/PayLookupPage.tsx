@@ -2,23 +2,27 @@ import { useSearchParams } from "react-router";
 import { Spinner, Callout, Heading, Text, Link } from "../shared";
 import { useClientLookup } from "../features/client-lookup";
 import { InvoiceList } from "../features/invoices";
-import type { DocumentType, Invoice as LookupInvoice } from "../features/client-lookup";
+import type {
+  DocumentType,
+  Invoice as LookupInvoice,
+} from "../features/client-lookup";
 import type { Invoice } from "../features/invoices";
 
 // Map client-lookup Invoice → features/invoices Invoice shape
 function toInvoice(raw: LookupInvoice): Invoice {
   return {
     id: raw.id,
-    externalReference: raw.externalReference,
+    externalId: raw.externalReference,
     amount: raw.amount,
     currency: raw.currency,
-    description: raw.description,
+    subject: raw.description,
     receiverName: raw.receiverName,
     receiverId: "",
     senderDocument: raw.senderDocument,
     senderName: raw.senderName,
     status: raw.status,
     paymentId: raw.paymentId,
+    metadata: {},
     createdAt: raw.createdAt,
     updatedAt: raw.createdAt,
   };
@@ -60,7 +64,11 @@ export function PayLookupPage() {
           <Callout
             type="error"
             title="Lookup failed"
-            description={error instanceof Error ? error.message : "Could not find your invoices. Please check your information and try again."}
+            description={
+              error instanceof Error
+                ? error.message
+                : "Could not find your invoices. Please check your information and try again."
+            }
           />
           <Link to="/pay">Try again</Link>
         </div>
@@ -80,11 +88,7 @@ export function PayLookupPage() {
           Document: {docType} {docNum}
         </Text>
       </div>
-      <InvoiceList
-        invoices={invoices}
-        isLoading={false}
-        showPayButton
-      />
+      <InvoiceList invoices={invoices} isLoading={false} showPayButton />
       <Link to="/pay" color="secondary">
         Search with a different document
       </Link>
