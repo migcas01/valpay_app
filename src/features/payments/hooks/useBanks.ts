@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { PseBank, PseBankListResponse } from "../types/bank.types";
+import type { PseBankListResponse } from "../types/bank.types";
 
 async function fetchBanks(): Promise<PseBankListResponse> {
   const response = await fetch("/api/v1/pse-banks");

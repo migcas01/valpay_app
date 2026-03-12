@@ -1,16 +1,21 @@
 import { Building2 } from "lucide-react";
-import { Select, Spinner } from "../../../shared";
+import { Select, Spinner, Callout } from "../../../shared";
 import { useBanks } from "../hooks/useBanks";
+import type { SingleValue } from "react-select";
 import type { PseBank } from "../types/bank.types";
+
+interface SelectOption {
+  value: string;
+  label: string;
+}
 
 interface BankSelectorProps {
   value: string;
   onChange: (bankCode: string) => void;
-  error?: string;
 }
 
-export function BankSelector({ value, onChange, error }: BankSelectorProps) {
-  const { data, isLoading, error: banksError } = useBanks();
+export function BankSelector({ value, onChange }: BankSelectorProps) {
+  const { data, isLoading, error } = useBanks();
 
   if (isLoading) {
     return (
@@ -20,30 +25,36 @@ export function BankSelector({ value, onChange, error }: BankSelectorProps) {
     );
   }
 
-  if (banksError) {
+  if (error) {
     return (
-      <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
-        Failed to load banks. Please try again.
-      </div>
+      <Callout
+        type="error"
+        title="Failed to load banks"
+        description="Please refresh the page and try again."
+      />
     );
   }
 
-  const options = (data?.data ?? []).map((bank: PseBank) => ({
+  const options: SelectOption[] = (data?.data ?? []).map((bank: PseBank) => ({
     value: bank.code,
     label: bank.name,
   }));
 
+  const selectedOption = options.find((opt) => opt.value === value) ?? null;
+
+  const handleChange = (option: unknown) => {
+    const o = option as SingleValue<SelectOption>;
+    if (o) onChange(o.value);
+  };
+
   return (
     <Select
       label="Select Bank"
-      options={[
-        { value: "", label: "Choose a bank" },
-        ...options,
-      ]}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
+      options={options}
+      value={selectedOption}
+      onChange={handleChange}
       icon={Building2}
-      error={error}
+      placeholder="Choose a bank..."
     />
   );
 }
