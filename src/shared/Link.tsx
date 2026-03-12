@@ -1,3 +1,5 @@
+import { Link as RouterLink, type LinkProps as RouterLinkProps } from "react-router";
+
 const linkStyles = {
   color: {
     primary: "text-amber-600 hover:text-amber-700",
@@ -19,17 +21,10 @@ const linkStyles = {
   },
 };
 
-interface LinkProps extends Omit<
-  React.DetailedHTMLProps<
-    React.AnchorHTMLAttributes<HTMLAnchorElement>,
-    HTMLAnchorElement
-  >,
-  "color"
-> {
+interface CustomLinkProps extends Omit<RouterLinkProps, "color"> {
   color?: keyof typeof linkStyles.color;
   underline?: keyof typeof linkStyles.underline;
   weight?: keyof typeof linkStyles.weight;
-  children: React.ReactNode;
 }
 
 export function Link({
@@ -39,9 +34,9 @@ export function Link({
   className,
   children,
   ...props
-}: LinkProps) {
+}: CustomLinkProps) {
   return (
-    <a
+    <RouterLink
       className={[
         "transition-colors duration-200",
         linkStyles["color"][color],
@@ -52,6 +47,6 @@ export function Link({
       {...props}
     >
       {children}
-    </a>
+    </RouterLink>
   );
 }

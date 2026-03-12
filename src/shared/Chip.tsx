@@ -28,8 +28,8 @@ const chipStyles = {
 };
 
 interface ChipProps extends React.DetailedHTMLProps<
-  React.HTMLAttributes<HTMLSpanElement>,
-  HTMLSpanElement
+  React.HTMLAttributes<HTMLDivElement>,
+  HTMLDivElement
 > {
   children: React.ReactNode;
   color?: keyof typeof chipStyles.color;
@@ -45,9 +45,9 @@ export function Chip({
   ...props
 }: ChipProps) {
   return (
-    <span
+    <div
       className={[
-        "gap-1.5 inline-flex items-center m-2 px-3 py-1 rounded-full text-xs font-bold",
+        "flex gap-1.5 items-center rounded-full text-xs font-bold",
         chipStyles["color"][color],
         chipStyles["size"][size],
         chipStyles["weight"][weight],
@@ -61,6 +61,6 @@ export function Chip({
         ].join(" ")}
       ></span>
       {children}
-    </span>
+    </div>
   );
 }
