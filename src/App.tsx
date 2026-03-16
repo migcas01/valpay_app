@@ -303,7 +303,7 @@ function App() {
         {/* ── PaymentSummaryCard ── */}
         <Section title="PaymentSummaryCard">
           <div className="max-w-sm">
-            <PaymentSummaryCard summary={MOCK_PAYMENT_SUMMARY} />
+            <PaymentSummaryCard invoice={MOCK_PAYMENT_SUMMARY} />
           </div>
         </Section>
 
