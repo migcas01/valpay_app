@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "../../../api/clients";
+import { apiClient } from "@/lib/axios";
 import type { Administrator, UpdateAdministratorPayload } from "../types/administrator.types";
 
 interface UpdateAdministratorArgs {

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "../../../api/clients";
+import { apiClient } from "@/lib/axios";
 import type { Administrator, CreateAdministratorPayload } from "../types/administrator.types";
 
 export function useCreateAdministrator() {

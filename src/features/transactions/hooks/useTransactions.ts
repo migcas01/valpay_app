@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "../../../api/clients";
+import { apiClient } from "@/lib/axios"
 import type {
   Transaction,
   TransactionListResponse,
