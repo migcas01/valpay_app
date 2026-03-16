@@ -11,24 +11,21 @@ import {
   Button,
 } from "../../../shared";
 import { formatCurrency } from "../../../utils";
-import type { Invoice } from "../types/invoice.types";
+import type { Invoice } from "../types";
 
 interface InvoiceCardProps {
   invoice: Invoice;
-  showPayButton?: boolean;
 }
 
 const statusConfig = {
-  pending: { color: "warning", label: "Pending" },
-  paid: { color: "success", label: "Paid" },
+  pending: { color: "default", label: "Pending" },
+  partial: { color: "warning", label: "Partial" },
+  completed: { color: "success", label: "Paid" },
   failed: { color: "danger", label: "Failed" },
-  cancelled: { color: "default", label: "Cancelled" },
+  refunded: { color: "secondary", label: "Cancelled" },
 } as const;
 
-export function InvoiceCard({
-  invoice,
-  showPayButton: _showPayButton = false,
-}: InvoiceCardProps) {
+export function InvoiceCard({ invoice }: InvoiceCardProps) {
   const { color, label } = statusConfig[invoice.status];
 
   return (
@@ -47,10 +44,10 @@ export function InvoiceCard({
               variant="h5"
               className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2"
             >
-              Cliente
+              Client
             </Heading>
             <Text className="text-sm font-semibold text-gray-800">
-              {invoice.senderName ?? "John Doe"}
+              {"No name"}
             </Text>
           </div>
           <div className="sm:text-right">
@@ -58,11 +55,9 @@ export function InvoiceCard({
               variant="h5"
               className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2"
             >
-              Vencimiento
+              Expiration
             </Heading>
-            <Text className="text-sm font-semibold text-gray-800">
-              26 de Marzo, 2026
-            </Text>
+            <Text className="text-sm font-semibold text-gray-800">No date</Text>
           </div>
         </section>
 
@@ -72,21 +67,19 @@ export function InvoiceCard({
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-100/50">
                   <th className="px-4 py-3 text-xs font-bold text-gray-600 uppercase">
-                    Concepto
+                    Concept
                   </th>
                   <th className="px-4 py-3 text-xs font-bold text-gray-600 uppercase text-right">
-                    Cantidad
+                    Quantity
                   </th>
                   <th className="px-4 py-3 text-xs font-bold text-gray-600 uppercase text-right">
-                    Precio
+                    Pricing
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 <tr>
-                  <td className="px-4 py-3 text-sm text-gray-800">
-                    Suscripción Premium (Anual)
-                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-800">Item 1</td>
                   <td className="px-4 py-3 text-sm text-gray-600 text-right">
                     1
                   </td>
@@ -95,9 +88,7 @@ export function InvoiceCard({
                   </td>
                 </tr>
                 <tr>
-                  <td className="px-4 py-3 text-sm text-gray-800">
-                    Servicio de API Gateway
-                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-800">Item 2</td>
                   <td className="px-4 py-3 text-sm text-gray-600 text-right">
                     1
                   </td>
@@ -113,10 +104,10 @@ export function InvoiceCard({
       <CardFooter className="flex flex-row justify-between items-center">
         <section className="flex flex-col">
           <Text>Subtotal</Text>
-          <Text>{formatCurrency(10000, "COP")}</Text>
+          <Text>{formatCurrency(invoice.amount, invoice.currency)}</Text>
         </section>
         <section>
-          {invoice.status !== "paid" && (
+          {invoice.status !== "completed" && (
             <Link to={`/pay/${invoice.id}`} underline="none">
               <Button className="flex flex-row self-end">
                 <section>

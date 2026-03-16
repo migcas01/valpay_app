@@ -1,24 +1,19 @@
 import { useState } from "react";
 import { FileText, Plus } from "lucide-react";
-import { Button, Spinner, EmptyState } from "../../../shared";
+import { Button, Spinner, EmptyState } from "@/shared";
 import { InvoiceCard } from "./InvoiceCard";
 import { InvoiceForm } from "./InvoiceForm";
-import type { Invoice } from "../types/invoice.types";
+import { useInvoices } from "../hooks/useInvoices";
 
 interface InvoiceListProps {
-  invoices: Invoice[];
-  isLoading?: boolean;
-  showPayButton?: boolean;
   showCreateButton?: boolean;
 }
 
 export function InvoiceList({
-  invoices,
-  isLoading,
-  showPayButton = false,
   showCreateButton = false,
 }: InvoiceListProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const { data: invoiceList, isLoading } = useInvoices();
 
   if (isLoading) {
     return (
@@ -28,7 +23,7 @@ export function InvoiceList({
     );
   }
 
-  if (invoices.length === 0) {
+  if ((invoiceList?.data ?? []).length === 0) {
     return (
       <>
         <EmptyState
@@ -74,11 +69,10 @@ export function InvoiceList({
           onClose={() => setIsFormOpen(false)}
         />
       )}
-      {invoices.map((invoice) => (
+      {invoiceList?.data.map((invoice) => (
         <InvoiceCard
           key={invoice.id}
           invoice={invoice}
-          showPayButton={showPayButton}
         />
       ))}
     </div>

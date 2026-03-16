@@ -1,40 +1,26 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { CreateInvoicePayload, Invoice } from "../types/invoice.types";
+import { apiClient } from "@/lib/axios";
+import type { CreateInvoicePayload, Invoice } from "../types";
 
-const API_BASE = "http://localhost:3000/api/v1";
+interface CreateInvoiceApiPayload {
+  externalId: string;
+  subject: string;
+  amount: number;
+  currencyCode: string;
+  metadata: Record<string, unknown>;
+}
 
-async function createInvoice(
-  payload: CreateInvoicePayload
-): Promise<Invoice> {
-  // Transformar formato frontend al formato de la API
-  const apiPayload = {
+async function createInvoice(payload: CreateInvoicePayload): Promise<Invoice> {
+  const apiPayload: CreateInvoiceApiPayload = {
     externalId: `INV-${Date.now()}`,
     subject: payload.description,
     amount: payload.amount,
     currencyCode: payload.currency,
-    metadata: {
-      receiverId: payload.receiverId,
-      senderDocument: payload.senderDocument,
-      senderName: payload.senderName,
-      senderEmail: payload.senderEmail,
-      senderPhone: payload.senderPhone,
-    },
+    metadata: payload.metadata,
   };
 
-  const response = await fetch(`${API_BASE}/invoices`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(apiPayload),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || "Failed to create invoice");
-  }
-
-  return response.json();
+  const { data } = await apiClient.post<Invoice>("invoices/", apiPayload);
+  return data;
 }
 
 export function useCreateInvoice() {
