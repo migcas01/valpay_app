@@ -22,14 +22,14 @@ export const navItemsConfig: NavItemsConfig = {
   admin: [
     { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { to: "/invoices", icon: FileText, label: "Invoices" },
-    { to: "/transactions/1", icon: ArrowLeftRight, label: "Transactions" },
+    { to: "/transactions", icon: ArrowLeftRight, label: "Transactions" },
     { to: "/api-keys", icon: KeyRound, label: "API Keys" },
   ],
   maintainer: [
     { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { to: "/commerces", icon: Building2, label: "Commerces" },
     { to: "/administrators", icon: Users, label: "Administrators" },
-    { to: "/transactions/1", icon: ArrowLeftRight, label: "Transactions" },
+    { to: "/transactions", icon: ArrowLeftRight, label: "Transactions" },
     { to: "/api-keys", icon: KeyRound, label: "API Keys" },
   ],
 };
