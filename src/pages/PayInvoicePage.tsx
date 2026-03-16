@@ -1,35 +1,11 @@
 import { useParams } from "react-router";
-import { Spinner, Callout, Link } from "../shared";
-import { useInvoice } from "../features/invoices";
-import { PaymentForm } from "../features/payments";
-import type { Invoice } from "../features/invoices";
-import type { PaymentSummary } from "../features/payments";
-
-// Build a PaymentSummary from an Invoice for the PSE payment form
-function buildSummary(invoice: Invoice): PaymentSummary {
-  const subtotal = invoice.amount;
-  return {
-    invoice: {
-      externalReference: invoice.externalId,
-      description: invoice.subject,
-      amount: invoice.amount,
-      currency: invoice.currency,
-    },
-    payer: {
-      name: invoice.senderName,
-      document: invoice.senderDocument,
-    },
-    receiver: {
-      name: invoice.receiverName,
-    },
-    items: [{ label: "Subtotal", amount: subtotal, type: "subtotal" }],
-    total: subtotal,
-  };
-}
+import { Spinner, Callout, Link } from "@/shared";
+import { useInvoice, PaymentForm, isPayable } from "@/features/invoices";
+import type { Invoice } from "@/features/invoices";
 
 export function PayInvoicePage() {
   const { id } = useParams<{ id: string }>();
-  const { data: invoice, isLoading, error } = useInvoice(id ?? "");
+  const { data: invoice, isLoading, error } = useInvoice(id!);
 
   if (isLoading) {
     return (
@@ -56,7 +32,7 @@ export function PayInvoicePage() {
     );
   }
 
-  if (invoice.status !== "pending") {
+  if (!isPayable(invoice)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="w-full max-w-md space-y-4">
@@ -71,11 +47,9 @@ export function PayInvoicePage() {
     );
   }
 
-  const summary = buildSummary(invoice);
-
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <PaymentForm invoiceId={invoice.id} summary={summary} />
+      <PaymentForm invoice={invoice} />
     </div>
   );
 }
