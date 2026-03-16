@@ -6,32 +6,6 @@ interface PaymentSummaryCardProps {
   invoice: Invoice;
 }
 
-interface PaymentItem {
-  item: { label: string; price: number };
-  currency: string;
-}
-
-const paymentItems: { items: PaymentItem[] } = {
-  items: [
-    { item: { label: "Item 1", price: 1 }, currency: "COP" },
-    { item: { label: "Item 2", price: 1 }, currency: "COP" },
-    { item: { label: "Item 3", price: 1 }, currency: "COP" },
-    { item: { label: "Item 4", price: 1 }, currency: "COP" },
-  ],
-};
-
-// TODO: Fix the currency prop
-function LineItem({ item, currency }: PaymentItem) {
-  return (
-    <div className="flex justify-between">
-      <Text variant="small" color="secondary">
-        {item.label}
-      </Text>
-      <Text weight="medium">{formatCurrency(0, currency)}</Text>
-    </div>
-  );
-}
-
 export function PaymentSummaryCard({ invoice }: PaymentSummaryCardProps) {
   return (
     <Card>
@@ -46,25 +20,24 @@ export function PaymentSummaryCard({ invoice }: PaymentSummaryCardProps) {
             <Text variant="small" color="secondary">
               Invoice Reference
             </Text>
-            <Text weight="medium">{"EDUFAST-9999"}</Text>
+            <Text weight="medium">{invoice.externalId}</Text>
           </div>
 
           <div>
             <Text variant="small" color="secondary">
               Description
             </Text>
-            <Text>{"Description"}</Text>
+            <Text>{invoice.subject}</Text>
           </div>
 
           <Divider />
 
           <div>
             <Text variant="small" color="secondary">
-              Payer
+              Responsible
             </Text>
-            <Text weight="medium">{"PAYER NAME"}</Text>
-            <Text variant="small" color="secondary">
-              {"PAYER DOCUMENT"}
+            <Text weight="medium">
+              {invoice.responsibles[0]?.documentNumber}
             </Text>
           </div>
 
@@ -72,15 +45,7 @@ export function PaymentSummaryCard({ invoice }: PaymentSummaryCardProps) {
             <Text variant="small" color="secondary">
               Receiver
             </Text>
-            <Text weight="medium">{"RECEIVER NAME"}</Text>
-          </div>
-
-          <Divider />
-
-          <div className="space-y-2">
-            {paymentItems.items.map(({ item, currency }, index) => (
-              <LineItem key={index} item={item} currency={currency} />
-            ))}
+            <Text weight="medium">{invoice.receiver}</Text>
           </div>
 
           <Divider />
@@ -90,7 +55,7 @@ export function PaymentSummaryCard({ invoice }: PaymentSummaryCardProps) {
               Total
             </Heading>
             <Heading variant="h5" weight="bold" color="primary">
-              {formatCurrency(1, "COP")}
+              {formatCurrency(invoice.total, "COP")}
             </Heading>
           </div>
         </div>

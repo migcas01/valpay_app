@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createPaymentIntent } from "../api/paymentsApi"
-import type { CreateIntentPayload} from "../../payments/types";
+import { createPaymentIntent } from "../api/paymentsApi";
+import type { CreateIntentPayload } from "../types";
 
-export function useCreatePayment() {
+export function useCreateInvoicePayment() {
   const queryClient = useQueryClient();
 
   return useMutation({
