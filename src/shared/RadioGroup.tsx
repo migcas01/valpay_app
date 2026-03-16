@@ -14,7 +14,12 @@ interface RadioGroupProps {
   name: string;
 }
 
-export function RadioGroup({ options, value, onChange, name }: RadioGroupProps) {
+export function RadioGroup({
+  options,
+  value,
+  onChange,
+  name,
+}: RadioGroupProps) {
   return (
     <fieldset className="space-y-3">
       {options.map((option) => {
@@ -48,13 +53,13 @@ export function RadioGroup({ options, value, onChange, name }: RadioGroupProps) 
                   <span
                     className={[
                       "text-sm font-bold",
-                      isEnabled ? "text-[#32325d]" : "text-gray-800",
+                      isEnabled ? "text-gray-700" : "text-gray-800",
                     ].join(" ")}
                   >
                     {option.label}
                   </span>
                   {option.subtitle && (
-                    <span className="text-[11px] text-gray-500">
+                    <span className="text-xs text-gray-500">
                       {option.subtitle}
                     </span>
                   )}
