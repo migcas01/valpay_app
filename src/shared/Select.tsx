@@ -2,6 +2,7 @@ import ReactSelect, {
   type Props,
   components,
   type DropdownIndicatorProps,
+  type GroupBase,
 } from "react-select";
 import { ChevronsUpDown, type LucideIcon } from "lucide-react";
 import { useId } from "react";
@@ -53,22 +54,22 @@ const selectStyles = {
   noOptions: "p-4 text-sm text-gray-400 text-center",
 };
 
-interface CustomSelectProps extends Props {
+interface CustomSelectProps<T> extends Props<T, false, GroupBase<T>> {
   label?: string;
   icon?: LucideIcon;
   size?: keyof typeof selectStyles.size;
 }
 
-export function Select({
+export function Select<T>({
   label,
   icon: Icon = ChevronsUpDown,
   size = "medium",
   ...props
-}: CustomSelectProps) {
+}: CustomSelectProps<T>) {
   const s = selectStyles.size[size];
   const id = useId();
 
-  const DropdownIndicator = (indicatorProps: DropdownIndicatorProps) => (
+  const DropdownIndicator = (indicatorProps: DropdownIndicatorProps<T, false, GroupBase<T>>) => (
     <components.DropdownIndicator {...indicatorProps}>
       <div className="flex items-center justify-center">
         <Icon
@@ -91,7 +92,7 @@ export function Select({
           {label}
         </label>
       )}
-      <ReactSelect
+      <ReactSelect<T, false, GroupBase<T>>
         unstyled
         inputId={id}
         components={{
