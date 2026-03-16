@@ -45,9 +45,8 @@ export function useTransactions(params: UseTransactionsParams = {}) {
   return useQuery({
     queryKey: ["transactions", params],
     queryFn: async (): Promise<TransactionListResponse> => {
-      const { data } = await apiClient.get("/transactions/1", { params });
+      const { data } = await apiClient.get("/transactions/", { params });
 
-      // La API devuelve un array directo
       const transactions = (Array.isArray(data) ? data : data.data || []).map(
         transformTransaction,
       );
