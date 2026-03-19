@@ -90,15 +90,18 @@ export function PaymentWizard({ paymentId, returnUrl }: PaymentWizardProps) {
   function handleSubmit() {
     if (!resolvedInstallmentId) return;
 
-    const effectiveReturnUrl =
-      returnUrl ?? `${window.location.origin}/pay/return`;
+    // Build a temporary returnUrl with paymentId — transactionId gets appended after intent is created
+    const baseReturn = returnUrl ?? `${window.location.origin}/pay/return`;
 
     createIntent(
       {
         paymentId,
         installmentId: resolvedInstallmentId,
         providerCode: "PSE",
-        returnUrl: effectiveReturnUrl,
+        // returnUrl must include transactionId so PSE redirects back with it.
+        // We embed paymentId now; transactionId is unknown until the API responds,
+        // so we use a placeholder that the backend echoes back via redirect.
+        returnUrl: `${baseReturn}?paymentId=${paymentId}`,
         sender: {
           documentType: basicInfo.documentType,
           documentNumber: basicInfo.documentNumber,

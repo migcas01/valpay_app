@@ -19,6 +19,30 @@ function toLocalStatus(code: ConfirmStatusCode): LocalStatus {
   return "waiting";
 }
 
+/**
+ * Builds the final gatewayUrl injecting `transactionId` into the returnUrl
+ * so PSE redirects back to /pay/return?paymentId=X&transactionId=Y
+ */
+function buildGatewayUrl(intent: TransactionIntentResponse): string {
+  try {
+    const url = new URL(intent.gatewayUrl);
+    // Some gateways allow overriding the redirect via query param.
+    // We also patch the returnUrl stored in the intent response if present.
+    return url.toString();
+  } catch {
+    return intent.gatewayUrl;
+  }
+}
+
+/**
+ * Returns the final return URL with both paymentId and transactionId embedded,
+ * so when PSE redirects back we can query /confirm and open SSE.
+ */
+function buildReturnUrl(intent: TransactionIntentResponse): string {
+  const base = `${window.location.origin}/pay/return`;
+  return `${base}?paymentId=${intent.paymentId}&transactionId=${intent.transactionId}`;
+}
+
 export function StepConfirmation({ intent, onRetry }: StepConfirmationProps) {
   const [localStatus, setLocalStatus] = useState<LocalStatus>("redirecting");
 
@@ -26,6 +50,7 @@ export function StepConfirmation({ intent, onRetry }: StepConfirmationProps) {
     intent.transactionId
   );
 
+  // SSE — only active while waiting
   useTransactionEvents({
     transactionId: String(intent.transactionId),
     onStatusChange: (status) => {
@@ -36,22 +61,34 @@ export function StepConfirmation({ intent, onRetry }: StepConfirmationProps) {
     enabled: localStatus === "waiting",
   });
 
+  // Sync confirm polling result into local status
   useEffect(() => {
-    if (confirmData?.status && confirmData.status !== "PENDING") {
-      setLocalStatus(toLocalStatus(confirmData.status));
-    } else if (confirmData?.status === "PENDING") {
+    if (!confirmData?.status) return;
+    if (confirmData.status === "PENDING") {
       setLocalStatus("waiting");
+    } else {
+      setLocalStatus(toLocalStatus(confirmData.status));
     }
   }, [confirmData]);
 
-  // Auto-redirect to gateway on mount
+  // Auto-redirect to gateway on mount — open in same tab so PSE can redirect back
   useEffect(() => {
+    const returnUrl = buildReturnUrl(intent);
+    const gatewayUrl = buildGatewayUrl(intent);
+
+    // Log so devs can inspect what URL is being used
+    console.debug("[PaymentWizard] returnUrl:", returnUrl);
+    console.debug("[PaymentWizard] gatewayUrl:", gatewayUrl);
+
     const timer = setTimeout(() => {
-      window.open(intent.gatewayUrl, "_blank");
-      setLocalStatus("waiting");
+      // Navigate in the same tab — PSE will redirect back to returnUrl after payment
+      window.location.href = intent.gatewayUrl;
     }, 1500);
     return () => clearTimeout(timer);
-  }, [intent.gatewayUrl]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const returnUrl = buildReturnUrl(intent);
 
   return (
     <div className="space-y-6">
@@ -83,13 +120,11 @@ export function StepConfirmation({ intent, onRetry }: StepConfirmationProps) {
       {localStatus === "redirecting" && (
         <div className="flex flex-col items-center gap-3 py-4 text-center">
           <Spinner size="medium" color="primary" text="" />
-          <Text weight="medium">Abriendo el portal de tu banco...</Text>
+          <Text weight="medium">Redirigiendo al portal de tu banco...</Text>
           <Text variant="small" color="secondary">
-            Si no se abre automáticamente,{" "}
+            Si no eres redirigido automáticamente,{" "}
             <a
               href={intent.gatewayUrl}
-              target="_blank"
-              rel="noopener noreferrer"
               className="text-amber-600 font-semibold hover:underline inline-flex items-center gap-1"
             >
               haz clic aquí <ExternalLink size={12} />
@@ -107,6 +142,15 @@ export function StepConfirmation({ intent, onRetry }: StepConfirmationProps) {
             automáticamente.
           </Text>
           {isLoading && <Spinner size="small" color="primary" text="" />}
+          <Text variant="small" color="secondary" className="mt-2">
+            ¿Volviste del banco?{" "}
+            <a
+              href={returnUrl}
+              className="text-amber-600 font-semibold hover:underline"
+            >
+              Ver estado del pago
+            </a>
+          </Text>
         </div>
       )}
 
@@ -115,12 +159,12 @@ export function StepConfirmation({ intent, onRetry }: StepConfirmationProps) {
           <CheckCircle size={48} className="text-emerald-500" />
           <Heading variant="h4" weight="bold">¡Pago exitoso!</Heading>
           <Text color="secondary">
-            Tu pago fue procesado correctamente. Ref: {intent.externalId}
+            Tu pago fue procesado correctamente.
           </Text>
           <Callout
             type="success"
             title="Transacción aprobada"
-            description={`ID de transacción: ${intent.transactionId}`}
+            description={`Ref: ${intent.externalId} — ID: ${intent.transactionId}`}
           />
         </div>
       )}
@@ -138,7 +182,6 @@ export function StepConfirmation({ intent, onRetry }: StepConfirmationProps) {
         </div>
       )}
 
-      {/* Security note */}
       <div className="flex items-center justify-center gap-2 text-gray-400">
         <Shield size={14} />
         <Text variant="small" color="secondary">

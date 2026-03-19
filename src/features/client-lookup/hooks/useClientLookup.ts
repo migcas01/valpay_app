@@ -1,29 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
-import type { ClientLookupParams, ClientLookupResponse } from "../types/client-lookup.types";
+import { apiClient } from "@/lib/axios";
+import type { ClientLookupParams } from "../types/client-lookup.types";
+import type { PaymentListResponse } from "../../payments/types";
 
-const API_BASE = "http://localhost:3000/api/v1";
-
-async function fetchInvoices(
-  params: ClientLookupParams
-): Promise<ClientLookupResponse> {
-  const queryString = new URLSearchParams({
-    documentType: params.documentType,
-    documentNumber: params.documentNumber,
-  }).toString();
-
-  const response = await fetch(`${API_BASE}/invoices?${queryString}`);
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch invoices");
-  }
-
-  return response.json();
+async function fetchPayments(params: ClientLookupParams): Promise<PaymentListResponse> {
+  const { data } = await apiClient.get<PaymentListResponse>("/payments", {
+    params: {
+      documentType: params.documentType,
+      documentNumber: params.documentNumber,
+    },
+  });
+  return data;
 }
 
 export function useClientLookup(params: ClientLookupParams) {
   return useQuery({
-    queryKey: ["invoices", params.documentType, params.documentNumber],
-    queryFn: () => fetchInvoices(params),
+    queryKey: ["payments", "lookup", params.documentType, params.documentNumber],
+    queryFn: () => fetchPayments(params),
     enabled: !!params.documentNumber,
   });
 }

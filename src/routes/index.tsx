@@ -13,8 +13,6 @@ import { CommercesPage } from "../pages/CommercesPage";
 import { AdministratorsPage } from "../pages/AdministratorsPage";
 import { ApiKeysPage } from "../pages/ApiKeysPage";
 import { PayPage } from "../pages/PayPage";
-import { PayLookupPage } from "../pages/PayLookupPage";
-import { PayInvoicePage } from "../pages/PayInvoicePage";
 import { PayReturnPage } from "../pages/PayReturnPage";
 import { PaymentWizardPage } from "../pages/PaymentWizardPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
@@ -30,10 +28,11 @@ export function AppRoutes() {
 
       {/* ── Public (client payment flow) ─────────────────── */}
       <Route element={<PublicLayout />}>
+        {/* Entry: lookup by document → list of pending payments */}
         <Route path="/pay" element={<PayPage />} />
-        <Route path="/pay/lookup" element={<PayLookupPage />} />
-        <Route path="/pay/:id" element={<PayInvoicePage />} />
+        {/* Step wizard: /pay/payment?paymentId=<id> */}
         <Route path="/pay/payment" element={<PaymentWizardPage />} />
+        {/* PSE redirect back: /pay/return?paymentId=<id>&transactionId=<id> */}
         <Route path="/pay/return" element={<PayReturnPage />} />
       </Route>
 
@@ -69,7 +68,7 @@ export function AppRoutes() {
       <Route path="/" element={<Navigate to="/pay" replace />} />
       <Route path="*" element={<NotFoundPage />} />
 
-      {/* ── Dev ──────────────────────────────────────────── */}
+      {/* ── Dev sandbox ──────────────────────────────────── */}
       <Route path="/dev" element={<DevPage />} />
     </Routes>
   );

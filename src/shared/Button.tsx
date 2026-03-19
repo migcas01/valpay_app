@@ -41,7 +41,7 @@ export function Button({
       type={type}
       disabled={disabled}
       className={[
-        "inline-flex items-center justify-center gap-2 min-w-36 border border-transparent rounded-full transition-all duration-200 focus:outline-none disabled:cursor-not-allowed disabled:opacity-25",
+        "inline-flex items-center justify-center gap-2 min-w-36 border border-transparent rounded-md transition-all duration-200 focus:outline-none disabled:cursor-not-allowed disabled:opacity-25",
         buttonStyles["color"][color],
         buttonStyles["weight"][weight],
         buttonStyles["size"][size],

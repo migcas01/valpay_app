@@ -1,11 +1,23 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import type { TransactionStatus, TransactionEvent } from "../types/transaction.types";
+import type { TransactionStatus } from "../types/transaction.types";
+
+// SSE event shape from the backend
+interface RawSseEvent {
+  status: string;
+}
 
 interface UseTransactionEventsOptions {
   transactionId: string;
   onStatusChange?: (status: TransactionStatus, message: string) => void;
   enabled?: boolean;
+}
+
+function toTransactionStatus(raw: string): TransactionStatus {
+  const s = raw.toUpperCase();
+  if (s === "SUCCESS" || s === "AUTHORIZED") return "completed";
+  if (s === "FAILED" || s === "NOT_AUTHORIZED" || s === "VOIDED") return "failed";
+  return "pending";
 }
 
 export function useTransactionEvents({
@@ -19,29 +31,29 @@ export function useTransactionEvents({
   const connect = useCallback(() => {
     if (!enabled || !transactionId) return;
 
-    const eventSource = new EventSource(
-      `/api/v1/transactions/${transactionId}/events`
-    );
+    // Use the API base URL from env so it works in dev (localhost:3000) and prod
+    const apiBase = import.meta.env.VITE_VALPAY_API_URL?.replace(/\/$/, "") ?? "";
+    const url = `${apiBase}/transactions/${transactionId}/events`;
+
+    const eventSource = new EventSource(url);
     eventSourceRef.current = eventSource;
 
     eventSource.onmessage = (event) => {
       try {
-        const data: TransactionEvent = JSON.parse(event.data);
+        const data: RawSseEvent = JSON.parse(event.data);
+        const status = toTransactionStatus(data.status);
 
-        if (data.type === "status_change") {
-          onStatusChange?.(data.status, data.message);
+        onStatusChange?.(status, "");
 
-          queryClient.setQueryData(["transaction", transactionId], (old: any) => ({
-            ...old,
-            status: data.status,
-          }));
+        queryClient.setQueryData(["transaction", transactionId], (old: unknown) =>
+          old && typeof old === "object" ? { ...old, status } : old
+        );
 
-          if (data.status === "completed" || data.status === "failed") {
-            eventSource.close();
-          }
+        if (status === "completed" || status === "failed") {
+          eventSource.close();
         }
-      } catch (error) {
-        console.error("Failed to parse SSE event:", error);
+      } catch (err) {
+        console.error("[SSE] Failed to parse event:", err);
       }
     };
 
@@ -56,16 +68,12 @@ export function useTransactionEvents({
 
   useEffect(() => {
     const cleanup = connect();
-    return () => {
-      cleanup?.();
-    };
+    return () => cleanup?.();
   }, [connect]);
 
   const close = useCallback(() => {
     eventSourceRef.current?.close();
   }, []);
 
-  return {
-    close,
-  };
+  return { close };
 }
