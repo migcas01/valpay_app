@@ -1,7 +1,7 @@
-import { useInvoice } from "../hooks/useInvoices";
-import { Spinner } from "@/shared";
-import { InvoicePaymentCallout } from "./InvoicePaymentCallout"
-import { PaymentForm } from "./PaymentForm"
+import { useInvoice } from "../hooks/useInvoice";
+import { Spinner, Callout } from "@/shared";
+import { PaymentForm } from "./PaymentForm";
+import { isPayable } from "../utils";
 
 interface PaymentInvoiceViewProps {
   invoiceId: string;
@@ -15,22 +15,24 @@ export function PaymentInvoiceView({ invoiceId }: PaymentInvoiceViewProps) {
   }
 
   if (error || !invoice) {
-    return <InvoicePaymentCallout type="error" title="Not found" description={} />;
-  }
-
-  if (!isPayable(invoice)) {
     return (
-      <InvoicePaymentCallout
-        type="warning"
-        title="Invoice not payable"
-        description={}
+      <Callout
+        type="error"
+        title="Not found"
+        description={error instanceof Error ? error.message : "Invoice not found"}
       />
     );
   }
 
-  return (
-    <PaymentForm
-      invoice={{}}
-    />
-  );
+  if (!isPayable(invoice)) {
+    return (
+      <Callout
+        type="warning"
+        title="Invoice not payable"
+        description={`This invoice is no longer payable. Status: ${invoice.status}`}
+      />
+    );
+  }
+
+  return <PaymentForm invoice={invoice} />;
 }

@@ -1,35 +1,11 @@
-import { useSearchParams } from "react-router";
-import { Spinner, Callout, Heading, Text, Link } from "../shared";
+import { useSearchParams, useNavigate } from "react-router";
+import { Spinner, Callout, Heading, Text, Link, Button } from "../shared";
 import { useClientLookup } from "../features/client-lookup";
-import { InvoiceList } from "../features/invoices";
-import type {
-  DocumentType,
-  Invoice as LookupInvoice,
-} from "../features/client-lookup";
-import type { Invoice } from "../features/invoices";
-
-// Map client-lookup Invoice → features/invoices Invoice shape
-function toInvoice(raw: LookupInvoice): Invoice {
-  return {
-    id: raw.id,
-    externalId: raw.externalReference,
-    amount: raw.amount,
-    currency: raw.currency,
-    subject: raw.description,
-    receiverName: raw.receiverName,
-    receiverId: "",
-    senderDocument: raw.senderDocument,
-    senderName: raw.senderName,
-    status: raw.status,
-    paymentId: raw.paymentId,
-    metadata: {},
-    createdAt: raw.createdAt,
-    updatedAt: raw.createdAt,
-  };
-}
+import type { DocumentType } from "../features/client-lookup";
 
 export function PayLookupPage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const docType = (searchParams.get("docType") ?? "CC") as DocumentType;
   const docNum = searchParams.get("docNum") ?? "";
 
@@ -76,7 +52,7 @@ export function PayLookupPage() {
     );
   }
 
-  const invoices = (data?.invoices ?? []).map(toInvoice);
+  const invoices = data?.invoices ?? [];
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
@@ -88,7 +64,47 @@ export function PayLookupPage() {
           Document: {docType} {docNum}
         </Text>
       </div>
-      <InvoiceList invoices={invoices} isLoading={false} showPayButton />
+
+      {invoices.length === 0 ? (
+        <Text color="secondary">No invoices found for this document.</Text>
+      ) : (
+        <div className="space-y-3">
+          {invoices.map((invoice) => (
+            <div
+              key={invoice.id}
+              className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 shadow-sm"
+            >
+              <div>
+                <Text weight="medium">{invoice.description}</Text>
+                <Text variant="small" color="secondary">
+                  Ref: {invoice.externalReference}
+                </Text>
+              </div>
+              <div className="flex items-center gap-3">
+                <Text weight="bold">
+                  {new Intl.NumberFormat("es-CO", {
+                    style: "currency",
+                    currency: invoice.currency,
+                  }).format(invoice.amount)}
+                </Text>
+                {invoice.status !== "paid" && (
+                  <Button
+                    size="small"
+                    onClick={() =>
+                      navigate(
+                        `/pay/payment?paymentId=${invoice.paymentId}&docType=${docType}&docNum=${docNum}`
+                      )
+                    }
+                  >
+                    Pay
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <Link to="/pay" color="secondary">
         Search with a different document
       </Link>

@@ -1,12 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
-import { getBanks } from "../api/paymentsApi"
-import type { BankResponse } from "../../payments/types"
+import { usePseBanks } from "../../payments/hooks/usePseBanks";
 
-export function useBanks() {
-  return useQuery({
-    queryKey: ["pse-banks"],
-    queryFn: getBanks,
-    staleTime: 10 * 60 * 60 * 1000, // 10 hours as per spec,
-    select: (data: BankResponse) => data.map((bank) => ({ value: bank.code, label: bank.name })),
-  });
-}
+// Re-export for backwards compatibility within the invoices feature
+export { usePseBanks as useBanks };

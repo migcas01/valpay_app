@@ -1,12 +1,6 @@
-import { apiClient } from "@/lib/axios";
-import type { CreateIntentPayload, CreateIntentResponse, BankResponse } from "../../payments/types";
-
-export async function createPaymentIntent(payload: CreateIntentPayload) {
-  const { data } = await apiClient.post<CreateIntentResponse>("transactions/intent/", payload);
-  return data;
-}
-
-export async function getBanks() {
-  const { data } = await apiClient.get<BankResponse>("pse-banks/");
-  return data;
-}
+// Re-exports for backwards compatibility inside the invoices feature.
+// The actual implementation lives in features/payments/api/paymentsApi.ts
+export {
+  createTransactionIntent as createPaymentIntent,
+  getPseBanks as getBanks,
+} from "../../payments/api/paymentsApi";

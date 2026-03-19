@@ -13,3 +13,4 @@ export { Link } from "./Link";
 export { Popover } from "./Popover";
 export { EmptyState } from "./EmptyState";
 export { RadioGroup, type RadioOption } from "./RadioGroup";
+export { Stepper, type StepItem } from "./Stepper";

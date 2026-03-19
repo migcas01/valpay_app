@@ -1,11 +1,7 @@
-import { PaymentSelector } from "../components/PaymentSelector";
+import { PaymentWizard } from "@/features/payments/components/PaymentWizard";
 
+// Dev sandbox — shows the PaymentWizard with a mock paymentId.
+// Change the paymentId to an existing one in your local DB.
 export function DevPage() {
-  return (
-    <PaymentSelector
-      amount="$100.00"
-      onClose={() => console.log("Close clicked")}
-      onSubmit={(data) => console.log("Payment data:", data)}
-    />
-  );
+  return <PaymentWizard paymentId={1} />;
 }

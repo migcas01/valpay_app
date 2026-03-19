@@ -61,11 +61,21 @@ export interface CreateIntentResponse {
 }
 
 export interface CreateInvoicePayload {
-  externalId: string;
-  amount: number;
-  currency: string;
-  description: string;
-  metadata: Record<string, unknown>;
+  externalId?: string;
+  subject: string;
+  currencyCode: string;
+  items: Array<{ label: string; amount: number; type?: "fixed" | "percent" }>;
+  installments?: number;
+  billingAnchor?: string;
+  // Legacy fields kept for InvoiceForm compatibility
+  amount?: number;
+  currency?: string;
+  description?: string;
+  receiverId?: string;
+  senderDocument?: string;
+  senderName?: string;
+  senderEmail?: string;
+  senderPhone?: string;
 }
 
 export interface InvoiceListResponse {

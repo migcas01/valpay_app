@@ -16,6 +16,7 @@ import { PayPage } from "../pages/PayPage";
 import { PayLookupPage } from "../pages/PayLookupPage";
 import { PayInvoicePage } from "../pages/PayInvoicePage";
 import { PayReturnPage } from "../pages/PayReturnPage";
+import { PaymentWizardPage } from "../pages/PaymentWizardPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { DevPage } from "../pages/DevPage";
 
@@ -32,6 +33,7 @@ export function AppRoutes() {
         <Route path="/pay" element={<PayPage />} />
         <Route path="/pay/lookup" element={<PayLookupPage />} />
         <Route path="/pay/:id" element={<PayInvoicePage />} />
+        <Route path="/pay/payment" element={<PaymentWizardPage />} />
         <Route path="/pay/return" element={<PayReturnPage />} />
       </Route>
 

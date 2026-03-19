@@ -5,6 +5,9 @@ import { TransactionStatusBadge } from "./TransactionStatusBadge";
 import { useConfirmTransaction } from "../hooks/useConfirmTransaction";
 import { useTransactionEvents } from "../hooks/useTransactionEvents";
 import type { Transaction, TransactionStatus } from "../types/transaction.types";
+import type { ConfirmStatusCode } from "../../payments/types";
+import { formatCurrency } from "@/utils/formatCurrency";
+import { formatDate } from "@/utils/formatDate";
 
 interface TransactionStatusCardProps {
   transactionId: string;
@@ -41,17 +44,11 @@ const statusConfig: Record<TransactionStatus, {
   },
 };
 
-const formatCurrency = (amount: number, currency: string) =>
-  new Intl.NumberFormat("es-CO", { style: "currency", currency }).format(amount);
-
-const formatDate = (dateString: string) =>
-  new Date(dateString).toLocaleDateString("es-CO", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function toLocalStatus(code: ConfirmStatusCode): TransactionStatus {
+  if (code === "SUCCESS" || code === "AUTHORIZED") return "completed";
+  if (code === "FAILED" || code === "NOT_AUTHORIZED" || code === "VOIDED") return "failed";
+  return "pending";
+}
 
 export function TransactionStatusCard({
   transactionId,
@@ -62,14 +59,14 @@ export function TransactionStatusCard({
   );
   const [sseMessage, setSseMessage] = useState("");
 
-  const { data: confirmedTransaction, isLoading: isConfirming } =
+  const { data: confirmData, isLoading: isConfirming } =
     useConfirmTransaction(transactionId);
 
   useEffect(() => {
-    if (confirmedTransaction) {
-      setLocalStatus(confirmedTransaction.status);
+    if (confirmData?.status) {
+      setLocalStatus(toLocalStatus(confirmData.status));
     }
-  }, [confirmedTransaction]);
+  }, [confirmData]);
 
   useTransactionEvents({
     transactionId,
@@ -92,8 +89,9 @@ export function TransactionStatusCard({
     );
   }
 
-  const transaction = confirmedTransaction ?? initialTransaction;
-  const { icon: StatusIcon, iconColor, bgColor, title, defaultMessage } = statusConfig[localStatus];
+  const transaction = initialTransaction;
+  const { icon: StatusIcon, iconColor, bgColor, title, defaultMessage } =
+    statusConfig[localStatus];
 
   return (
     <Card>

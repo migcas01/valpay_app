@@ -1,7 +1,6 @@
 import { useParams } from "react-router";
 import { Spinner, Callout, Link } from "@/shared";
 import { useInvoice, PaymentForm, isPayable } from "@/features/invoices";
-import type { Invoice } from "@/features/invoices";
 
 export function PayInvoicePage() {
   const { id } = useParams<{ id: string }>();
