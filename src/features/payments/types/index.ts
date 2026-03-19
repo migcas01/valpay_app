@@ -98,7 +98,7 @@ export interface PaymentListResponse {
 export interface TransactionIntentPayload {
   paymentId: number;
   installmentId: number;
-  providerCode: "PSE";
+  methodCode: "PSE";
   returnUrl: string;
   amount?: number; // optional: partial payment
   sender: {

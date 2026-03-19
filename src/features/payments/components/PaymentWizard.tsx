@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { ArrowLeft, Shield } from "lucide-react";
 import { Stepper, Button, Callout, Spinner } from "@/shared";
-import { StepBasicInfo } from "./StepBasicInfo";
-import { StepPaymentMethod } from "./StepPaymentMethod";
-import { StepConfirmation } from "./StepConfirmation";
 import { usePayment } from "../hooks/usePayment";
 import { useCreateTransactionIntent } from "../hooks/useCreateTransactionIntent";
 import { formatCurrency } from "@/utils/formatCurrency";
-import type { BasicInfoData } from "./StepBasicInfo";
-import type { PaymentMethodData } from "./StepPaymentMethod";
+import { type BasicInfoData, StepBasicInfo } from "./StepBasicInfo";
+import { StepConfirmation } from "./StepConfirmation";
+import { type PaymentMethodData, StepPaymentMethod } from "./StepPaymentMethod";
 import type { TransactionIntentResponse } from "../types";
 
 const STEPS = [
@@ -19,10 +17,11 @@ const STEPS = [
 
 interface PaymentWizardProps {
   paymentId: number;
+  initialInstallmentId?: number | null;
   returnUrl?: string;
 }
 
-export function PaymentWizard({ paymentId, returnUrl }: PaymentWizardProps) {
+export function PaymentWizard({ paymentId, initialInstallmentId, returnUrl }: PaymentWizardProps) {
   const [step, setStep] = useState(0);
   const [basicInfo, setBasicInfo] = useState<BasicInfoData>({
     fullName: "",
@@ -35,14 +34,20 @@ export function PaymentWizard({ paymentId, returnUrl }: PaymentWizardProps) {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodData>({
     method: "pse",
     bankCode: "",
-    installmentId: null,
+    installmentId: initialInstallmentId ?? null,
   });
   const [intent, setIntent] = useState<TransactionIntentResponse | null>(null);
 
-  const { data: payment, isLoading: loadingPayment, error: paymentError } =
-    usePayment(paymentId);
-  const { mutate: createIntent, isPending: submitting, error: intentError } =
-    useCreateTransactionIntent();
+  const {
+    data: payment,
+    isLoading: loadingPayment,
+    error: paymentError,
+  } = usePayment(paymentId);
+  const {
+    mutate: createIntent,
+    isPending: submitting,
+    error: intentError,
+  } = useCreateTransactionIntent();
 
   if (loadingPayment) {
     return (
@@ -73,7 +78,7 @@ export function PaymentWizard({ paymentId, returnUrl }: PaymentWizardProps) {
     (installments.length === 1 ? installments[0].id : null);
 
   const selectedInstallment = installments.find(
-    (i) => i.id === resolvedInstallmentId
+    (i) => i.id === resolvedInstallmentId,
   );
 
   // Validation per step
@@ -87,6 +92,8 @@ export function PaymentWizard({ paymentId, returnUrl }: PaymentWizardProps) {
   const step1Valid =
     paymentMethod.bankCode !== "" && resolvedInstallmentId !== null;
 
+  console.log(resolvedInstallmentId);
+
   function handleSubmit() {
     if (!resolvedInstallmentId) return;
 
@@ -97,11 +104,11 @@ export function PaymentWizard({ paymentId, returnUrl }: PaymentWizardProps) {
       {
         paymentId,
         installmentId: resolvedInstallmentId,
-        providerCode: "PSE",
+        methodCode: "PSE",
         // returnUrl must include transactionId so PSE redirects back with it.
         // We embed paymentId now; transactionId is unknown until the API responds,
         // so we use a placeholder that the backend echoes back via redirect.
-        returnUrl: `${baseReturn}?paymentId=${paymentId}`,
+        returnUrl: `${baseReturn}?paymentId=${paymentId}&transactionId={transactionId}`,
         sender: {
           documentType: basicInfo.documentType,
           documentNumber: basicInfo.documentNumber,
@@ -119,7 +126,7 @@ export function PaymentWizard({ paymentId, returnUrl }: PaymentWizardProps) {
           setIntent(data);
           setStep(2);
         },
-      }
+      },
     );
   }
 
@@ -204,10 +211,7 @@ export function PaymentWizard({ paymentId, returnUrl }: PaymentWizardProps) {
               )}
 
               {step === 0 && (
-                <Button
-                  disabled={!step0Valid}
-                  onClick={() => setStep(1)}
-                >
+                <Button disabled={!step0Valid} onClick={() => setStep(1)}>
                   Continuar
                 </Button>
               )}

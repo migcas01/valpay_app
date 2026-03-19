@@ -1,4 +1,10 @@
-import { Shield, CheckCircle, XCircle, Clock, ExternalLink } from "lucide-react";
+import {
+  Shield,
+  CheckCircle,
+  XCircle,
+  Clock,
+  ExternalLink,
+} from "lucide-react";
 import { Heading, Text, Divider, Button, Spinner, Callout } from "@/shared";
 import { useConfirmTransaction } from "../hooks/useConfirmTransaction";
 import { useTransactionEvents } from "../../transactions/hooks/useTransactionEvents";
@@ -15,13 +21,14 @@ type LocalStatus = "redirecting" | "waiting" | "success" | "failed";
 
 function toLocalStatus(code: ConfirmStatusCode): LocalStatus {
   if (code === "SUCCESS" || code === "AUTHORIZED") return "success";
-  if (code === "FAILED" || code === "NOT_AUTHORIZED" || code === "VOIDED") return "failed";
+  if (code === "FAILED" || code === "NOT_AUTHORIZED" || code === "VOIDED")
+    return "failed";
   return "waiting";
 }
 
 /**
  * Builds the final gatewayUrl injecting `transactionId` into the returnUrl
- * so PSE redirects back to /pay/return?paymentId=X&transactionId=Y
+ * so the Payment Method redirects back to /pay/return?paymentId=X&transactionId=Y
  */
 function buildGatewayUrl(intent: TransactionIntentResponse): string {
   try {
@@ -47,7 +54,7 @@ export function StepConfirmation({ intent, onRetry }: StepConfirmationProps) {
   const [localStatus, setLocalStatus] = useState<LocalStatus>("redirecting");
 
   const { data: confirmData, isLoading } = useConfirmTransaction(
-    intent.transactionId
+    intent.transactionId,
   );
 
   // SSE — only active while waiting
@@ -76,16 +83,12 @@ export function StepConfirmation({ intent, onRetry }: StepConfirmationProps) {
     const returnUrl = buildReturnUrl(intent);
     const gatewayUrl = buildGatewayUrl(intent);
 
-    // Log so devs can inspect what URL is being used
-    console.debug("[PaymentWizard] returnUrl:", returnUrl);
-    console.debug("[PaymentWizard] gatewayUrl:", gatewayUrl);
-
     const timer = setTimeout(() => {
       // Navigate in the same tab — PSE will redirect back to returnUrl after payment
       window.location.href = intent.gatewayUrl;
     }, 1500);
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const returnUrl = buildReturnUrl(intent);
@@ -100,7 +103,9 @@ export function StepConfirmation({ intent, onRetry }: StepConfirmationProps) {
         <div className="space-y-2">
           {intent.concept.map((item) => (
             <div key={item.label} className="flex justify-between">
-              <Text variant="small" color="secondary">{item.label}</Text>
+              <Text variant="small" color="secondary">
+                {item.label}
+              </Text>
               <Text variant="small" weight="medium">
                 {formatCurrency(item.amount, "COP")}
               </Text>
@@ -157,10 +162,10 @@ export function StepConfirmation({ intent, onRetry }: StepConfirmationProps) {
       {localStatus === "success" && (
         <div className="flex flex-col items-center gap-3 py-4 text-center">
           <CheckCircle size={48} className="text-emerald-500" />
-          <Heading variant="h4" weight="bold">¡Pago exitoso!</Heading>
-          <Text color="secondary">
-            Tu pago fue procesado correctamente.
-          </Text>
+          <Heading variant="h4" weight="bold">
+            ¡Pago exitoso!
+          </Heading>
+          <Text color="secondary">Tu pago fue procesado correctamente.</Text>
           <Callout
             type="success"
             title="Transacción aprobada"
@@ -172,7 +177,9 @@ export function StepConfirmation({ intent, onRetry }: StepConfirmationProps) {
       {localStatus === "failed" && (
         <div className="flex flex-col items-center gap-3 py-4 text-center">
           <XCircle size={48} className="text-red-500" />
-          <Heading variant="h4" weight="bold">Pago no aprobado</Heading>
+          <Heading variant="h4" weight="bold">
+            Pago no aprobado
+          </Heading>
           <Text color="secondary">
             El banco no autorizó el pago. Puedes intentarlo de nuevo.
           </Text>
