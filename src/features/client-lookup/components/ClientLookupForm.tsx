@@ -10,7 +10,8 @@ import {
   Text,
   Callout,
   Spinner,
-} from "../../../shared";
+} from "@/shared";
+
 import type { SingleValue } from "react-select";
 import type { DocumentType } from "../types/client-lookup.types";
 import { useClientLookup } from "../hooks/useClientLookup";
@@ -64,7 +65,7 @@ export function ClientLookupForm() {
   const payments = data?.data ?? [];
 
   return (
-    <div className="min-h-screen flex items-start justify-center bg-[#F6F9FC] pt-12 px-4">
+    <div className="flex items-start justify-center bg-[#F6F9FC] pt-12 px-4">
       <div className="w-full max-w-md space-y-4">
         <Card>
           <CardBody>
@@ -133,13 +134,13 @@ export function ClientLookupForm() {
 
         {payments.length > 0 && (
           <div className="space-y-3">
-            <Text weight="bold" className="text-[#32325d]">
+            <Text weight="bold" className="text-slate-700">
               Pagos encontrados ({payments.length})
             </Text>
             {payments.map((payment: Payment) => {
-              const statusCode = payment.PaymentStatus?.code;
+              const statusCode = payment.status;
               const isPaid = statusCode === "PAID";
-              const installment = payment.TransactionInstallments?.[0];
+              const installment = payment.installments?.[0];
 
               return (
                 <div
@@ -151,11 +152,11 @@ export function ClientLookupForm() {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <Text weight="bold" className="text-[#32325d]">
+                      <Text weight="bold" className="text-slate-700">
                         {payment.subject}
                       </Text>
                       <Text variant="small" color="secondary">
-                        Ref: {payment.externalId}
+                        Ref: {payment.externalReference}
                       </Text>
                     </div>
                     <span

@@ -1,26 +1,24 @@
 import { CreditCard } from "lucide-react";
 import { RadioGroup, Select, Heading, Text, Callout } from "@/shared";
-import type { RadioOption } from "@/shared";
+import { type RadioOption, PseLogo } from "@/shared";
 import type { SingleValue } from "react-select";
 import { usePseBanks } from "../hooks/usePseBanks";
-import type { BankOption, TransactionInstallment } from "../types";
+import type { BankOption } from "../types";
 
 export interface PaymentMethodData {
   method: "pse";
   bankCode: string;
-  installmentId: number | null;
 }
 
 interface StepPaymentMethodProps {
   data: PaymentMethodData;
   onChange: (data: PaymentMethodData) => void;
-  installments: TransactionInstallment[];
 }
 
 const paymentOptions: RadioOption[] = [
   {
     value: "pse",
-    icon: <span className="font-black text-[10px] text-[#32325d]">PSE</span>,
+    icon: <PseLogo />,
     label: "PSE — Transferencia bancaria",
     active: true,
     enabled: true,
@@ -38,17 +36,8 @@ const paymentOptions: RadioOption[] = [
 export function StepPaymentMethod({
   data,
   onChange,
-  installments,
 }: StepPaymentMethodProps) {
   const { data: banks, isLoading } = usePseBanks();
-
-  const installmentOptions = installments.map((inst) => ({
-    value: String(inst.id),
-    label: `Cuota ${inst.number} — ${new Intl.NumberFormat("es-CO", {
-      style: "currency",
-      currency: "COP",
-    }).format(inst.total)} (vence ${inst.dueDate})`,
-  }));
 
   return (
     <div className="space-y-6">
@@ -70,27 +59,6 @@ export function StepPaymentMethod({
 
       {data.method === "pse" && (
         <div className="space-y-4">
-          {installments.length > 1 && (
-            <Select
-              label="Cuota a pagar"
-              options={installmentOptions}
-              value={
-                data.installmentId
-                  ? installmentOptions.find(
-                      (o) => o.value === String(data.installmentId)
-                    ) ?? null
-                  : null
-              }
-              onChange={(opt: SingleValue<{ value: string; label: string }>) =>
-                onChange({
-                  ...data,
-                  installmentId: opt ? Number(opt.value) : null,
-                })
-              }
-              placeholder="Selecciona una cuota..."
-            />
-          )}
-
           <Select
             label="Banco"
             isLoading={isLoading}

@@ -1,23 +1,18 @@
 // ── Payment status ────────────────────────────────────────────
-export type PaymentStatusCode = "ACTIVE" | "PARTIAL" | "PAID" | "OVERDUE";
+export type PaymentStatusCode = "ACTIVE" | "OVERDUE" | "PARTIAL" | "PAID" | "CANCELLED";
 
-export type InstallmentStatusCode =
-  | "PENDING"
-  | "PARTIAL"
-  | "PAID"
-  | "OVERDUE";
+export type InstallmentStatusCode = "PAID" | "PARTIAL" | "OVERDUE" | "PENDING" | "CANCELLED";
 
-// ── Transaction status (raw API codes) ───────────────────────
 export type TransactionStatusCode =
+  | "INITIALIZED"
   | "PENDING"
+  | "AUTHORIZED"
+  | "NOT_AUTHORIZED"
   | "SUCCESS"
   | "FAILED"
-  | "NOT_AUTHORIZED"
-  | "AUTHORIZED"
   | "REFUNDED"
   | "VOIDED";
 
-// ── PSE Banks ────────────────────────────────────────────────
 export interface PseBank {
   code: string;
   name: string;
@@ -30,7 +25,6 @@ export interface BankOption {
   label: string;
 }
 
-// ── Payment items ────────────────────────────────────────────
 export interface PaymentItem {
   label: string;
   amount: number;
@@ -42,30 +36,30 @@ export interface ConceptItem {
   amount: number;
 }
 
-// ── Installments ─────────────────────────────────────────────
-export interface TransactionInstallment {
+export interface PaymentInstallment {
   id: number;
-  number: number;
+  amount: number;
   dueDate: string;
-  InstallmentStatus: { code: InstallmentStatusCode };
-  concept: ConceptItem[];
-  total: number;
+  installmentStatus: InstallmentStatusCode;
 }
 
-// ── Payment entity ───────────────────────────────────────────
 export interface Payment {
   id: number;
-  externalId: string;
+  currency: string;
+  externalReference: string;
   subject: string;
-  installments: number;
   billingAnchor: string;
-  PaymentStatus: { code: PaymentStatusCode };
-  TransactionInstallments: TransactionInstallment[];
+  receiverName: string;
+  status: PaymentStatusCode;
+  concept: ConceptItem[];
+  total: number;
+  installments: PaymentInstallment[];
+  createdAt: string;
+  updatedAt: string;
 }
 
-// ── Create payment ────────────────────────────────────────────
 export interface CreatePaymentPayload {
-  externalId: string;
+  externalReference: string;
   subject: string;
   currencyCode: string;
   items: PaymentItem[];
@@ -73,7 +67,6 @@ export interface CreatePaymentPayload {
   billingAnchor?: string;
 }
 
-// ── List payments ─────────────────────────────────────────────
 export interface PaymentListParams {
   page?: number;
   limit?: number;
@@ -94,7 +87,6 @@ export interface PaymentListResponse {
   };
 }
 
-// ── Transaction intent ────────────────────────────────────────
 export interface TransactionIntentPayload {
   paymentId: number;
   installmentId: number;
@@ -118,26 +110,15 @@ export interface TransactionIntentResponse {
   status: "pending";
   amount: number;
   gatewayUrl: string;
-  externalId: string;
+  externalReference: string;
   requestAt: string;
   transactionId: number;
   paymentId: number;
-  concept: ConceptItem[];
 }
 
-// ── Confirm transaction ───────────────────────────────────────
-export type ConfirmStatusCode =
-  | "PENDING"
-  | "SUCCESS"
-  | "FAILED"
-  | "NOT_AUTHORIZED"
-  | "AUTHORIZED"
-  | "REFUNDED"
-  | "VOIDED";
-
 export interface ConfirmTransactionResponse {
-  status: ConfirmStatusCode;
+  status: TransactionStatusCode;
   invoiceNumber?: number;
   amount?: number;
-  externalId?: string;
+  externalReference?: string;
 }

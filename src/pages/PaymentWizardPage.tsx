@@ -7,12 +7,6 @@ export function PaymentWizardPage() {
   const rawId = searchParams.get("paymentId");
   const paymentId = rawId ? Number(rawId) : null;
 
-  const rawInstallmentId = searchParams.get("installmentId");
-  const installmentId =
-    rawInstallmentId && !isNaN(Number(rawInstallmentId))
-      ? Number(rawInstallmentId)
-      : null;
-
   if (!paymentId || isNaN(paymentId)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -28,5 +22,5 @@ export function PaymentWizardPage() {
     );
   }
 
-  return <PaymentWizard paymentId={paymentId} initialInstallmentId={installmentId} />;
+  return <PaymentWizard paymentId={paymentId} />;
 }

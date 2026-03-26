@@ -5,7 +5,7 @@ import { TransactionStatusBadge } from "./TransactionStatusBadge";
 import { useConfirmTransaction } from "../hooks/useConfirmTransaction";
 import { useTransactionEvents } from "../hooks/useTransactionEvents";
 import type { Transaction, TransactionStatus } from "../types/transaction.types";
-import type { ConfirmStatusCode } from "../../payments/types";
+import type { TransactionStatusCode } from "../../payments/types";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { formatDate } from "@/utils/formatDate";
 
@@ -44,7 +44,7 @@ const statusConfig: Record<TransactionStatus, {
   },
 };
 
-function toLocalStatus(code: ConfirmStatusCode): TransactionStatus {
+function toLocalStatus(code: TransactionStatusCode): TransactionStatus {
   if (code === "SUCCESS" || code === "AUTHORIZED") return "completed";
   if (code === "FAILED" || code === "NOT_AUTHORIZED" || code === "VOIDED") return "failed";
   return "pending";
