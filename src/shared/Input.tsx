@@ -17,7 +17,7 @@ export function Input({
     <div className="space-y-2">
       <label>
         {label && (
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">
+          <span className="text-xs font-bold text-gray-400 capitalize tracking-wider ml-1">
             {label}
           </span>
         )}

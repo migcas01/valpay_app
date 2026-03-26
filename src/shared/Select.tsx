@@ -87,7 +87,7 @@ export function Select<T>({
       {label && (
         <label
           htmlFor={id}
-          className={`font-bold text-gray-400 uppercase tracking-widest ml-1 ${s.label}`}
+          className={`font-bold text-gray-400 text-xs capitalize tracking-widest ml-1 ${s.label}`}
         >
           {label}
         </label>
