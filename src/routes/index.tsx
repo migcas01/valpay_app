@@ -1,17 +1,7 @@
 import { Routes, Route, Navigate } from "react-router";
-import { AppLayout } from "../layouts/AppLayout";
-import { PublicLayout } from "../layouts/PublicLayout";
-import { AuthLayout } from "../layouts/AuthLayout";
-import { ProtectedRoute } from "../layouts/ProtectedRoute";
+import { PublicLayout, PaymentLayout, AuthLayout } from "../layouts";
 
 import { LoginPage } from "../pages/LoginPage";
-import { DashboardPage } from "../pages/DashboardPage";
-import { InvoicesPage } from "../pages/InvoicesPage";
-import { TransactionsPage } from "../pages/TransactionsPage";
-import { TransactionDetailPage } from "../pages/TransactionDetailPage";
-import { CommercesPage } from "../pages/CommercesPage";
-import { AdministratorsPage } from "../pages/AdministratorsPage";
-import { ApiKeysPage } from "../pages/ApiKeysPage";
 import { PayPage } from "../pages/PayPage";
 import { PayReturnPage } from "../pages/PayReturnPage";
 import { PaymentWizardPage } from "../pages/PaymentWizardPage";
@@ -28,40 +18,13 @@ export function AppRoutes() {
 
       {/* ── Public (client payment flow) ─────────────────── */}
       <Route element={<PublicLayout />}>
-        {/* Entry: lookup by document → list of pending payments */}
         <Route path="/pay" element={<PayPage />} />
-        {/* Step wizard: /pay/payment?paymentId=<id> */}
-        <Route path="/pay/payment" element={<PaymentWizardPage />} />
-        {/* PSE redirect back: /pay/return?paymentId=<id>&transactionId=<id> */}
         <Route path="/pay/return" element={<PayReturnPage />} />
       </Route>
 
-      {/* ── Admin routes (admin + maintainer) ────────────── */}
-      <Route
-        element={<ProtectedRoute allowedRoles={["admin", "maintainer"]} />}
-      >
-        <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/invoices" element={<InvoicesPage />} />
-          <Route path="/transactions" element={<TransactionsPage />} />
-          <Route path="/transactions/:id" element={<TransactionDetailPage />} />
-          <Route path="/api-keys" element={<ApiKeysPage />} />
-        </Route>
-      </Route>
-
-      {/* ── Maintainer-only routes ────────────────────────── */}
-      <Route
-        element={
-          <ProtectedRoute
-            allowedRoles={["maintainer"]}
-            redirectTo="/dashboard"
-          />
-        }
-      >
-        <Route element={<AppLayout />}>
-          <Route path="/commerces" element={<CommercesPage />} />
-          <Route path="/administrators" element={<AdministratorsPage />} />
-        </Route>
+      {/* ── Payment wizard (full height split layout) ────── */}
+      <Route element={<PaymentLayout />}>
+        <Route path="/pay/payment" element={<PaymentWizardPage />} />
       </Route>
 
       {/* ── Redirects & 404 ──────────────────────────────── */}
