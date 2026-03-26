@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, Shield } from "lucide-react";
-import { Stepper, Button, Callout, Spinner } from "@/shared";
+import { Stepper, Button, Callout, Spinner, Heading, Text } from "@/shared";
 import { usePayment } from "../hooks/usePayment";
 import { useCreateTransactionIntent } from "../hooks/useCreateTransactionIntent";
 import { formatCurrency } from "@/utils/formatCurrency";
@@ -17,11 +17,13 @@ const STEPS = [
 
 interface PaymentWizardProps {
   paymentId: number;
-  initialInstallmentId?: number | null;
   returnUrl?: string;
 }
 
-export function PaymentWizard({ paymentId, initialInstallmentId, returnUrl }: PaymentWizardProps) {
+export function PaymentWizard({
+  paymentId,
+  returnUrl,
+}: PaymentWizardProps) {
   const [step, setStep] = useState(0);
   const [basicInfo, setBasicInfo] = useState<BasicInfoData>({
     fullName: "",
@@ -34,7 +36,6 @@ export function PaymentWizard({ paymentId, initialInstallmentId, returnUrl }: Pa
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodData>({
     method: "pse",
     bankCode: "",
-    installmentId: initialInstallmentId ?? null,
   });
   const [intent, setIntent] = useState<TransactionIntentResponse | null>(null);
 
@@ -71,15 +72,8 @@ export function PaymentWizard({ paymentId, initialInstallmentId, returnUrl }: Pa
     );
   }
 
-  const installments = payment.TransactionInstallments ?? [];
-  // If only one installment, auto-select it
-  const resolvedInstallmentId =
-    paymentMethod.installmentId ??
-    (installments.length === 1 ? installments[0].id : null);
-
-  const selectedInstallment = installments.find(
-    (i) => i.id === resolvedInstallmentId,
-  );
+  const installments = payment.installments ?? [];
+  const firstInstallment = installments[0] ?? null;
 
   // Validation per step
   const step0Valid =
@@ -90,12 +84,10 @@ export function PaymentWizard({ paymentId, initialInstallmentId, returnUrl }: Pa
     basicInfo.address.trim() !== "";
 
   const step1Valid =
-    paymentMethod.bankCode !== "" && resolvedInstallmentId !== null;
-
-  console.log(resolvedInstallmentId);
+    paymentMethod.bankCode !== "" && firstInstallment !== null;
 
   function handleSubmit() {
-    if (!resolvedInstallmentId) return;
+    if (!firstInstallment) return;
 
     // Build a temporary returnUrl with paymentId — transactionId gets appended after intent is created
     const baseReturn = returnUrl ?? `${window.location.origin}/pay/return`;
@@ -103,11 +95,8 @@ export function PaymentWizard({ paymentId, initialInstallmentId, returnUrl }: Pa
     createIntent(
       {
         paymentId,
-        installmentId: resolvedInstallmentId,
+        installmentId: firstInstallment.id,
         methodCode: "PSE",
-        // returnUrl must include transactionId so PSE redirects back with it.
-        // We embed paymentId now; transactionId is unknown until the API responds,
-        // so we use a placeholder that the backend echoes back via redirect.
         returnUrl: `${baseReturn}?paymentId=${paymentId}&transactionId={transactionId}`,
         sender: {
           documentType: basicInfo.documentType,
@@ -131,113 +120,131 @@ export function PaymentWizard({ paymentId, initialInstallmentId, returnUrl }: Pa
   }
 
   return (
-    <div className="min-h-screen bg-[#F6F9FC] flex items-start justify-center p-4 pt-8">
-      <div className="w-full max-w-lg">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-black text-[#32325d]">
-            {payment.subject}
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Ref: {payment.externalId}
-          </p>
-          {selectedInstallment && (
-            <p className="text-xl font-bold text-amber-500 mt-2">
-              {formatCurrency(selectedInstallment.total, "COP")}
-            </p>
-          )}
-        </div>
+    <div className="flex flex-1 flex-row bg-inherit items-stretch justify-center">
+      {/* (Left) Payment summary */}
+      <div className="flex-1 p-4 bg-gray-100">
+        <div className="h-full flex flex-col justify-center items-start p-6">
+          <div className="h-3/4 w-full flex flex-col justify-start items-start p-8">
+            <Text className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+              Total a pagar
+            </Text>
+            <Heading variant="h1" className="text-5xl font-extrabold text-slate-900 mt-1">
+              {formatCurrency(payment.total, "COP")}
+            </Heading>
 
-        {/* Stepper */}
-        <div className="mb-8">
-          <Stepper steps={STEPS} currentStep={step} />
-        </div>
+            <div className="mt-6">
+              <Text className="text-base font-semibold text-slate-700">
+                {payment.subject}
+              </Text>
+              <Text className="text-xs text-slate-400 mt-0.5 font-mono">
+                {payment.externalReference}
+              </Text>
+            </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-[20px] shadow-[0_15px_35px_0_rgba(50,50,93,0.1)] p-6 space-y-6">
-          {/* Step 0 — Basic info */}
-          {step === 0 && (
-            <StepBasicInfo data={basicInfo} onChange={setBasicInfo} />
-          )}
-
-          {/* Step 1 — Payment method */}
-          {step === 1 && (
-            <StepPaymentMethod
-              data={{ ...paymentMethod, installmentId: resolvedInstallmentId }}
-              onChange={setPaymentMethod}
-              installments={installments}
-            />
-          )}
-
-          {/* Step 2 — Confirmation */}
-          {step === 2 && intent && (
-            <StepConfirmation
-              intent={intent}
-              onRetry={() => {
-                setIntent(null);
-                setStep(1);
-              }}
-            />
-          )}
-
-          {/* Intent error */}
-          {intentError && step === 1 && (
-            <Callout
-              type="error"
-              title="Error al crear el pago"
-              description={
-                intentError instanceof Error
-                  ? intentError.message
-                  : "Ocurrió un error. Inténtalo de nuevo."
-              }
-            />
-          )}
-
-          {/* Navigation */}
-          {step < 2 && (
-            <div className="flex items-center justify-between pt-2">
-              {step > 0 ? (
-                <Button
-                  color="secondary"
-                  size="small"
-                  onClick={() => setStep((s) => s - 1)}
-                  disabled={submitting}
+            <div className="w-full mt-6 space-y-2.5">
+              {payment.concept.map((item, itemIndex) => (
+                <div
+                  key={itemIndex}
+                  className="w-full flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50/80 px-4 py-3"
                 >
-                  <ArrowLeft size={16} />
-                  Atrás
-                </Button>
-              ) : (
-                <span />
-              )}
+                  <Text className="text-sm text-slate-600">
+                    {item.label}
+                  </Text>
+                  <Text className="text-sm font-semibold text-slate-800 tabular-nums">
+                    {formatCurrency(item.amount, "COP")}
+                  </Text>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
 
+      {/* (Right) Payment form */}
+      <div className="flex-1 p-4 bg-white">
+        <div className="h-full flex flex-col justify-center items-center p-6">
+          <div className="h-3/4 w-full flex flex-col justify-center items-center">
+            {/* Stepper */}
+            <div className="mb-8">
+              <Stepper steps={STEPS} currentStep={step} />
+            </div>
+
+            {/* Card */}
+            <div className="bg-white w-full h-[500px] p-6 space-y-6 overflow-hidden flex flex-col justify-center">
+              {/* Step 0 — Basic info */}
               {step === 0 && (
-                <Button disabled={!step0Valid} onClick={() => setStep(1)}>
-                  Continuar
-                </Button>
+                <StepBasicInfo data={basicInfo} onChange={setBasicInfo} />
               )}
 
+              {/* Step 1 — Payment method */}
               {step === 1 && (
-                <Button
-                  disabled={!step1Valid || submitting}
-                  onClick={handleSubmit}
-                >
-                  {submitting ? (
-                    <Spinner size="small" color="primary" text="" />
+                <StepPaymentMethod
+                  data={paymentMethod}
+                  onChange={setPaymentMethod}
+                />
+              )}
+
+              {/* Step 2 — Confirmation */}
+              {step === 2 && intent && (
+                <StepConfirmation intent={intent} />
+              )}
+
+              {/* Intent error */}
+              {intentError && step === 1 && (
+                <Callout
+                  type="error"
+                  title="Error al crear el pago"
+                  description={
+                    intentError instanceof Error
+                      ? intentError.message
+                      : "Ocurrió un error. Inténtalo de nuevo."
+                  }
+                />
+              )}
+
+              {/* Navigation */}
+              {step < 2 && (
+                <div className="flex items-center justify-between pt-2">
+                  {step > 0 ? (
+                    <Button
+                      color="secondary"
+                      size="small"
+                      onClick={() => setStep((s) => s - 1)}
+                      disabled={submitting}
+                    >
+                      <ArrowLeft size={16} />
+                      Atrás
+                    </Button>
                   ) : (
-                    <>
-                      <Shield size={16} />
-                      Pagar ahora
-                    </>
+                    <span />
                   )}
-                </Button>
+
+                  {step === 0 && (
+                    <Button disabled={!step0Valid} onClick={() => setStep(1)}>
+                      Continuar
+                    </Button>
+                  )}
+
+                  {step === 1 && (
+                    <Button
+                      disabled={!step1Valid || submitting}
+                      onClick={handleSubmit}
+                    >
+                      {submitting ? (
+                        <Spinner size="small" color="primary" text="" />
+                      ) : (
+                        <>
+                          <Shield size={16} />
+                          Pagar ahora
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
               )}
             </div>
-          )}
+          </div>
         </div>
-
-        <p className="text-center text-xs text-gray-400 mt-4">
-          Powered by <span className="font-black text-gray-600">Valpay</span>
-        </p>
       </div>
     </div>
   );
