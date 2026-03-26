@@ -14,3 +14,5 @@ export { Popover } from "./Popover";
 export { EmptyState } from "./EmptyState";
 export { RadioGroup, type RadioOption } from "./RadioGroup";
 export { Stepper, type StepItem } from "./Stepper";
+export { PseLogo } from "./PseIcon";
+export { StatusBadge } from "./StatusBadge";
