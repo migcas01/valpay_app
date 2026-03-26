@@ -5,14 +5,15 @@ import { Spinner, Heading, Text, Button, Callout, Divider } from "../shared";
 import { useConfirmTransaction } from "../features/payments/hooks/useConfirmTransaction";
 import { useTransactionEvents } from "../features/transactions/hooks/useTransactionEvents";
 import { formatCurrency } from "../utils/formatCurrency";
-import type { ConfirmStatusCode } from "../features/payments/types";
+import type { TransactionStatusCode } from "../features/payments/types";
 
 type LocalStatus = "checking" | "waiting" | "success" | "failed";
 
-function toLocalStatus(code: ConfirmStatusCode): LocalStatus {
+function toLocalStatus(code: TransactionStatusCode): LocalStatus {
   if (code === "SUCCESS" || code === "AUTHORIZED") return "success";
   if (code === "FAILED" || code === "NOT_AUTHORIZED" || code === "VOIDED") return "failed";
-  return "waiting"; // PENDING → still waiting
+  if (code === "INITIALIZED" || code === "PENDING") return "waiting";
+  return "checking";
 }
 
 // PSE redirects back here as:
@@ -50,8 +51,8 @@ export function PayReturnPage() {
   // ── Guard: missing params ────────────────────────────────────
   if (!transactionId || !paymentId) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F6F9FC] px-4">
-        <div className="w-full max-w-md space-y-4">
+      <div className="w-full max-w-md px-4">
+        <div className="space-y-4">
           <Callout
             type="error"
             title="Referencia de pago no encontrada"
@@ -69,9 +70,8 @@ export function PayReturnPage() {
   const isChecking = isConfirming || localStatus === "checking";
 
   return (
-    <div className="min-h-screen bg-[#F6F9FC] flex items-start justify-center p-4 pt-12">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-[20px] shadow-[0_15px_35px_0_rgba(50,50,93,0.1)] p-8">
+    <div className="w-full max-w-md px-4">
+      <div className="bg-white rounded-2xl shadow-lg p-8">
 
           {/* ── Checking / Waiting ── */}
           {(isChecking || localStatus === "waiting") && (
@@ -121,10 +121,10 @@ export function PayReturnPage() {
                       </Text>
                     </div>
                   )}
-                  {confirmData.externalId && (
+                  {confirmData.externalReference && (
                     <div className="flex justify-between">
                       <Text variant="small" color="secondary">Referencia</Text>
-                      <Text variant="small" className="font-mono">{confirmData.externalId}</Text>
+                      <Text variant="small" className="font-mono">{confirmData.externalReference}</Text>
                     </div>
                   )}
                   <div className="flex justify-between">
@@ -185,6 +185,5 @@ export function PayReturnPage() {
           Powered by <span className="font-black text-gray-600">Valpay</span>
         </p>
       </div>
-    </div>
-  );
+    );
 }
